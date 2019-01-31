@@ -1,0 +1,17 @@
+{
+  "name": "bigfloat",
+  "version": "1.0.0",
+  "description": "A library for unlimited precision floating point arithmetic.",
+  "main": "index",
+  "scripts": {
+    "test": ""
+  },
+  "keywords": [
+    "bigfloat",
+    "float",
+    "decimal",
+    "bigdecimal"
+  ],
+  "author": "David Martínez",
+  "license": "UNLICENSED"
+}
