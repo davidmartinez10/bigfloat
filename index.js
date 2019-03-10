@@ -460,7 +460,7 @@ function scientific(a) {
   return s;
 }
 
-function evaluate(source) {
+function evaluate(source, precision = -4) {
   // This function relies on an algorithm that fully parenthesizes the expression
   function parenthesize(expr) {
     return (
@@ -578,7 +578,7 @@ function evaluate(source) {
             value = mul(val1, val2);
             break;
           case "/":
-            value = div(val1, val2, -5);
+            value = div(val1, val2, precision);
             break;
           // For the moment only integer exponents are supported in the power() function
           case "**":
