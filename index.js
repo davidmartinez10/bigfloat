@@ -177,24 +177,7 @@ function div(dividend, divisor, precision = -4) {
     exponent = precision;
   }
   coefficient = coefficient / divisor.coefficient;
-  let remainder = coefficient % divisor.coefficient;
 
-  // Round the result if necessary.
-
-  if (!abs_lt(
-    remainder + remainder,
-    divisor.coefficient
-  )) {
-    coefficient = coefficient + (
-      dividend.coefficient === 0n
-        ? 0n
-        : (
-          dividend.coefficient < 0n
-            ? -1n
-            : 1n
-        )
-    );
-  }
   return make_big_float(coefficient, exponent);
 }
 

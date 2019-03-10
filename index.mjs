@@ -177,24 +177,7 @@ function div(dividend, divisor, precision = -4) {
     exponent = precision;
   }
   coefficient = coefficient / divisor.coefficient;
-  let remainder = coefficient % divisor.coefficient;
 
-  // Round the result if necessary.
-
-  if (!abs_lt(
-    remainder + remainder,
-    divisor.coefficient
-  )) {
-    coefficient = coefficient + (
-      dividend.coefficient === 0n
-        ? 0n
-        : (
-          dividend.coefficient < 0n
-            ? -1n
-            : 1n
-        )
-    );
-  }
   return make_big_float(coefficient, exponent);
 }
 
@@ -484,7 +467,7 @@ function evaluate(source, precision = -4) {
   // [1] Number
   // [2] Paren
   // [3] Operator
-  
+
   function is_number(n) {
     return !Number.isNaN(Number(n));
   }
@@ -549,15 +532,15 @@ function evaluate(source, precision = -4) {
       if (arr[i].type === "operator" && arr[i + 1].type !== "paren") {
         const start = arr.slice(0, (
           arr[i + 2].type === "operator"
-          || arr[i + 2].type === "paren"
-          ? last_left_paren + 1
-          : last_left_paren
-          )
+            || arr[i + 2].type === "paren"
+            ? last_left_paren + 1
+            : last_left_paren
+        )
         );
         const ops = arr.splice(i - 1, 3);
         const end = arr.slice((
-            arr[i - 1].type === "operator"
-            || (arr[i + 1] || {}).type === "paren"
+          arr[i - 1].type === "operator"
+            || (arr[i + 1] || {}).type === "paren"
             || i >= arr.length
             ? i - 1
             : i
@@ -592,7 +575,7 @@ function evaluate(source, precision = -4) {
             type = "boolean";
             value = eq(val1, val2);
         }
-  
+
         const result = {
           type,
           value
