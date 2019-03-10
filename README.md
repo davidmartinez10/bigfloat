@@ -4,9 +4,9 @@ A library for arbitrary precision floating point arithmetic, based on the origin
 Note: This library is a work in progress and shouldn't be used in production.
 
 ```javascript
-0.1 + 0.2 === 0.3                     // false
+0.1 + 0.2 === 0.3;                     // false
 
-bigfloat.evaluate("0.1 + 0.2 == 0.3") // true
+bigfloat.evaluate("0.1 + 0.2 == 0.3"); // true
 ```
 
 This library provides a set of functions for basic operations, and an evaluate() function that makes bigfloat operations behind the scenes. The operation shown above can also be performed by making use of the other provided functions like this:
@@ -38,12 +38,12 @@ import bigfloat from "bigfloat.js";
 # evaluate(expression, precision)
 This function takes an expression in string form, and a precision argument (default is -4) and returns a string:
 ```javascript
-bigfloat.evaluate("10 / 3", -5) // 3.33334
+bigfloat.evaluate("10 / 3", -5); // 3.33334
 ```
 
 Or a boolean:
 ```javascript
-bigfloat.evaluate("10 / 3 == 3") // false
+bigfloat.evaluate("10 / 3 == 3"); // false
 ```
 
 Caveats:
