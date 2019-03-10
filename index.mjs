@@ -92,7 +92,7 @@ function abs(a) {
 
 function conform_op(op) {
   return function (a, b) {
-    const differential = a.exponent - b.exponent;
+    const differential = b.exponent - a.exponent;
     return (
       differential === 0
         ? make_big_float(op(a.coefficient, b.coefficient), a.exponent)
@@ -102,7 +102,7 @@ function conform_op(op) {
               op(
                 (
                   a.coefficient
-                  * (10n ** BigInt(differential))
+                  * (10n ** BigInt(-differential))
                 ),
                 b.coefficient
               ),
@@ -111,7 +111,7 @@ function conform_op(op) {
             : make_big_float(
               op(
                 a.coefficient,
-                b.coefficient * (10n ** BigInt(-differential))
+                b.coefficient * (10n ** BigInt(differential))
               ),
               a.exponent
             )
