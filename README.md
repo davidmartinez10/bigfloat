@@ -6,7 +6,6 @@ Note: This library is a work in progress and shouldn't be used in production.
 ```javascript
 0.1 + 0.2 === 0.3                     // false
 
-import bigfloat from "bigfloat.js";
 bigfloat.evaluate("0.1 + 0.2 == 0.3") // true
 ```
 
@@ -26,6 +25,15 @@ bigfloat.eq(
 - [sub()](#sub)
 - [mul()](#mul)
 - [div()](#div)
+
+# Installation
+
+```bash
+npm install bigfloat.js
+```
+```javascript
+import bigfloat from "bigfloat.js";
+```
   
 # evaluate(expression, precision)
 This function takes an expression in string form, and a precision argument (default is -4) and returns a string:
