@@ -20,6 +20,8 @@ bigfloat.eq(
 ); // true
 ```
 
+- [bigfloat.js](#bigfloatjs)
+- [Installation](#installation)
 - [evaluate(expression, precision)](#evaluateexpression-precision)
 - [add()](#add)
 - [sub()](#sub)
@@ -36,9 +38,9 @@ import bigfloat from "bigfloat.js";
 ```
   
 # evaluate(expression, precision)
-This function takes an expression in string form, and a precision argument (default is -4) and returns a string:
+This function takes an expression in string form, and a negative integer for precision (default is -4) and returns a string:
 ```javascript
-bigfloat.evaluate("10 / 3", -5); // 3.33334
+bigfloat.evaluate("10 / 3", -5); // "3.33334"
 ```
 
 Or a boolean:
