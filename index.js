@@ -93,7 +93,6 @@ function abs(a) {
 function conform_op(op) {
   return function (a, b) {
     const differential = a.exponent - b.exponent;
-    console.log(differential);
     return (
         differential === 0
             ? make_big_float(op(a.coefficient, b.coefficient), a.exponent)
