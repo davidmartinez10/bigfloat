@@ -1,7 +1,7 @@
 {
-  "name": "bigfloat",
+  "name": "bigfloat.js",
   "version": "1.0.0",
-  "description": "A library for unlimited precision floating point arithmetic.",
+  "description": "A library for arbitrary precision floating point arithmetic.",
   "main": "index",
   "scripts": {
     "test": ""
@@ -13,5 +13,13 @@
     "bigdecimal"
   ],
   "author": "David Martínez",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidmartinez10/bigfloat.git"
+  },
+  "bugs": {
+    "url": "https://github.com/davidmartinez10/bigfloat/issues"
+  },
+  "homepage": "https://github.com/davidmartinez10/bigfloat#readme"
 }

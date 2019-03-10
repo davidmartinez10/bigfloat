@@ -1,6 +1,6 @@
 // big_float.js
 // David Martínez (based on the original work by Douglas Crockford)
-// 2019-01-30
+// 2019-03-10
 
 // You can access the big decimal floating point object in your module
 // by importing it.
@@ -92,31 +92,31 @@ function abs(a) {
 
 function conform_op(op) {
   return function (a, b) {
-    const differential = b.exponent - a.exponent;
+    const differential = a.exponent - b.exponent;
     console.log(differential);
     return (
-      differential === 0
-        ? make_big_float(op(a.coefficient, b.coefficient), a.exponent)
-        : (
-          differential < 0
-            ? make_big_float(
-              op(
-                (
-                  a.coefficient
-                  * (10n ** BigInt(-differential))
-                ),
-                b.coefficient
-              ),
-              b.exponent
+        differential === 0
+            ? make_big_float(op(a.coefficient, b.coefficient), a.exponent)
+            : (
+                differential < 0
+                    ? make_big_float(
+                    op(
+                        (
+                            a.coefficient
+                            * (10n ** BigInt(differential))
+                        ),
+                        b.coefficient
+                    ),
+                    b.exponent
+                    )
+                    : make_big_float(
+                    op(
+                        a.coefficient,
+                        b.coefficient * (10n ** BigInt(-differential))
+                    ),
+                    a.exponent
+                    )
             )
-            : make_big_float(
-              op(
-                a.coefficient,
-                b.coefficient * (10n ** BigInt(differential))
-              ),
-              a.exponent
-            )
-        )
     );
   };
 }
@@ -460,6 +460,162 @@ function scientific(a) {
   return s;
 }
 
+function evaluate(source) {
+  // This function relies on an algorithm that fully parenthesizes the expression
+  function parenthesize(expr) {
+    return (
+      "((((("
+      + expr
+        .replace(/ /g, "")
+        .replace(/\(/g, "(((((")
+        .replace(/\)/g, ")))))")
+        .replace(/\=\=/g, "))))==((((")
+        .replace(/\+/g, ")))+(((")
+        .replace(/\-/g, ")))-(((")
+        .replace(/\^|\*\*/g, ")**(")
+        .replace(/(?<!\*)\*(?!\*)/g, "))*((")
+        .replace(/\//g, "))/((")
+      + ")))))"
+    );
+  }
+
+  const expression = parenthesize(source);
+  const rx_tokens = /(-?\d+(?:\.\d+)?(?:e\-?\d+)?)|(\(|\))|(\+|\-|\/|\*\*|\=\=|\*|\^|\%)/g;
+  // Capture groups
+  // [1] Number
+  // [2] Paren
+  // [3] Operator
+  
+  function is_number(n) {
+    return !Number.isNaN(Number(n));
+  }
+
+  // Tokenize the expression
+  const tokens = expression.match(rx_tokens).map(function (element) {
+    switch (element) {
+      case "(":
+      case ")":
+        return {
+          type: "paren",
+          value: element
+        }
+      case "+":
+      case "-":
+      case "*":
+      case "**":
+      case "^":
+      case "/":
+      case "%":
+      case "==":
+        return {
+          type: "operator",
+          value: element
+        }
+      default:
+        if (is_number(element)) {
+          return {
+            type: "number",
+            value: normalize(make(element))
+          }
+        } else {
+          const error = "Unexpected token \"" + element + "\"";
+          throw new Error(error);
+        }
+    }
+  });
+
+  // Recursively resolve the parentheses
+  function resolve(arr) {
+    // Remove parens when there's only one value
+    if (arr.length <= 3) {
+      return [arr[1]];
+    }
+    let last_left_paren;
+    let i = 0;
+    while (i <= arr.length) {
+      const { value } = arr[i];
+      if (value === "(") {
+        last_left_paren = i;
+      }
+      if (value === ")") {
+        const start = arr.slice(0, last_left_paren);
+        const term = arr.splice(last_left_paren, i - last_left_paren + 1);
+        const end = arr.slice(last_left_paren, arr.length);
+        return resolve([
+          ...start,
+          ...resolve(term),
+          ...end
+        ]);
+      }
+      if (arr[i].type === "operator" && arr[i + 1].type !== "paren") {
+        const start = arr.slice(0, (
+          arr[i + 2].type === "operator"
+          || arr[i + 2].type === "paren"
+          ? last_left_paren + 1
+          : last_left_paren
+          )
+        );
+        const ops = arr.splice(i - 1, 3);
+        const end = arr.slice((
+            arr[i - 1].type === "operator"
+            || (arr[i + 1] || {}).type === "paren"
+            || i >= arr.length
+            ? i - 1
+            : i
+        ), arr.length);
+        const val1 = ops[0].value;
+        const val2 = ops[2].value;
+        let value;
+        let type = "number";
+        switch (ops[1].value) {
+          case "+":
+            value = add(val1, val2);
+            break;
+          case "-":
+            value = sub(val1, val2);
+            break;
+          case "*":
+            value = mul(val1, val2);
+            break;
+          case "/":
+            value = div(val1, val2, -5);
+            break;
+          // For the moment only integer exponents are supported in the power() function
+          case "**":
+            value = (function power(val = val1, n = 1) {
+              if (n === number(val2)) {
+                return val;
+              }
+              return power(mul(val1, val), n + 1);
+            }());
+            break;
+          case "==":
+            type = "boolean";
+            value = eq(val1, val2);
+        }
+  
+        const result = {
+          type,
+          value
+        };
+        return resolve([
+          ...start,
+          result,
+          ...end
+        ]);
+      }
+      i += 1;
+    }
+  }
+
+  const [result] = resolve(tokens);
+
+  if (result.type === "number") {
+    return string(result.value);
+  }
+  return result.value;
+}
+
 module.exports = Object.freeze({
   abs,
   add,
@@ -480,5 +636,6 @@ module.exports = Object.freeze({
   scientific,
   string,
   sub,
-  zero
+  zero,
+  evaluate
 });
