@@ -18,12 +18,16 @@ bigfloat.evaluate("0.1 + 0.2 == 0.3"); // true
 bigfloat.evaluate("0.1 + 0.2"); // "0.3"
 
 1 + Number.EPSILON; // 1.0000000000000002
-bigfloat.evaluate(`1 + ${Number.EPSILON}`) // "1.0000000000000002220446049250313"
+bigfloat.evaluate(`1 + ${Number.EPSILON}`); // "1.0000000000000002220446049250313"
 
 1 + Number.EPSILON / 2; // 1
-bigfloat.evaluate(`1 + ${Number.EPSILON / 2}`) // "1.00000000000000011102230246251565"
+bigfloat.evaluate(`1 + ${Number.EPSILON / 2}`); // "1.00000000000000011102230246251565"
 ```
 
+It also understands scientific e-notation:
+```javascript
+bigfloat.evaluate("1 + 2.220446049250313e-16"); // "1.0000000000000002220446049250313"
+```
 This library provides a set of functions for basic operations, and an evaluate() function that makes bigfloat operations behind the scenes. The first operation shown above can also be performed by making use of the other provided functions like this:
 ```javascript
 bigfloat.eq(
@@ -34,7 +38,7 @@ bigfloat.eq(
   bigfloat.make("0.3")
 ); // true
 ```
-
+- [bigfloat.js](#bigfloatjs)
 - [Installation](#installation)
 - [The bigfloat object](#the-bigfloat-object)
 - [evaluate(expression, precision)](#evaluateexpression-precision)
@@ -46,7 +50,6 @@ bigfloat.eq(
 - [div(dividend, divisor, precision)](#divdividend-divisor-precision)
 
 # Installation
-
 ```bash
 npm install bigfloat.js
 ```
@@ -75,6 +78,8 @@ Or a boolean:
 ```javascript
 bigfloat.evaluate("10 / 3 == 3"); // false
 ```
+
+It would be nice to have a transpiler that replaces JavaScript numbers and operators for bigfloat function calls, but it seemed to me very convenient to have this functionality available at runtime.
 
 Caveats:
 - The parser relies on a technique that was used in the FORTRAN I compiler that consists in fully parenthesizing the expression before evaluating it, thus exponentiation operators are left-associative like those of MATLAB and Excel. This will be replaced with a Top Down Operator Precedence parser in the near future and this issue will be solved.
