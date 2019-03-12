@@ -452,8 +452,8 @@ function evaluate(source, precision = -4) {
         .replace(/\(/g, "(((((")
         .replace(/\)/g, ")))))")
         .replace(/\=\=/g, "))))==((((")
-        .replace(/\+/g, ")))+(((")
-        .replace(/\-/g, ")))-(((")
+        .replace(/(?<!e)\+/g, ")))+(((")
+        .replace(/(?<!e)\-(?!\d)/g, ")))-(((")
         .replace(/\^|\*\*/g, ")**(")
         .replace(/(?<!\*)\*(?!\*)/g, "))*((")
         .replace(/\//g, "))/((")
@@ -462,7 +462,7 @@ function evaluate(source, precision = -4) {
   }
 
   const expression = parenthesize(source);
-  const rx_tokens = /(-?\d+(?:\.\d+)?(?:e\-?\d+)?)|(\(|\))|(\+|\-|\/|\*\*|\=\=|\*|\^|\%)/g;
+  const rx_tokens = /(-?\d+(?:\.\d+)?(?:e(\-?|\+?)\d+)?)|(\(|\))|(\+|\-|\/|\*\*|\=\=|\*|\^|\%)/g;
   // Capture groups
   // [1] Number
   // [2] Paren
@@ -497,7 +497,7 @@ function evaluate(source, precision = -4) {
         if (is_number(element)) {
           return {
             type: "number",
-            value: normalize(make(element))
+            value: normalize(make(element.replace("+", "")))
           }
         } else {
           const error = "Unexpected token \"" + element + "\"";
