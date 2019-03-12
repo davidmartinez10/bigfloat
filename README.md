@@ -35,7 +35,6 @@ bigfloat.eq(
 ); // true
 ```
 
-- [bigfloat.js](#bigfloatjs)
 - [Installation](#installation)
 - [The bigfloat object](#the-bigfloat-object)
 - [evaluate(expression, precision)](#evaluateexpression-precision)
