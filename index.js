@@ -448,21 +448,27 @@ function evaluate(source, precision = -4) {
     return (
       "((((("
       + expr
-        .replace(/ /g, "")
         .replace(/\(/g, "(((((")
         .replace(/\)/g, ")))))")
-        .replace(/\=\=/g, "))))==((((")
+        .replace(/(?<!\!)\=\=\=?/g, "))))==((((")
+        .replace(/\<\=/g, "))))<=((((")
+        .replace(/\>\=/g, "))))>=((((")
+        .replace(/\<(?!\=)/g, "))))<((((")
+        .replace(/\>(?!\=)/g, "))))>((((")
+        .replace(/\!\=\=?/g, "))))!=((((")
         .replace(/(?<!e)\+/g, ")))+(((")
         .replace(/(?<!e)\-(?!\d)/g, ")))-(((")
         .replace(/\^|\*\*/g, ")**(")
         .replace(/(?<!\*)\*(?!\*)/g, "))*((")
         .replace(/\//g, "))/((")
+        .replace(/\%/g, "))%((")
+        .replace(/ /g, "")
       + ")))))"
     );
   }
 
   const expression = parenthesize(source);
-  const rx_tokens = /(-?\d+(?:\.\d+)?(?:e(\-?|\+?)\d+)?)|(\(|\))|(\+|\-|\/|\*\*|\=\=|\*|\^|\%)/g;
+  const rx_tokens = /(-?\d+(?:\.\d+)?(?:e(\-?|\+?)\d+)?)|(\(|\))|(\+|\-|\/|\*\*|(?<!\!)\=\=|\!\=|\<\=?|\>\=?|\*|\^|\%)/g;
   // Capture groups
   // [1] Number
   // [2] Paren
@@ -474,35 +480,28 @@ function evaluate(source, precision = -4) {
 
   // Tokenize the expression
   const tokens = expression.match(rx_tokens).map(function (element) {
-    switch (element) {
-      case "(":
-      case ")":
-        return {
-          type: "paren",
-          value: element
-        }
-      case "+":
-      case "-":
-      case "*":
-      case "**":
-      case "^":
-      case "/":
-      case "%":
-      case "==":
-        return {
-          type: "operator",
-          value: element
-        }
-      default:
-        if (is_number(element)) {
-          return {
-            type: "number",
-            value: normalize(make(element.replace("+", "")))
-          }
-        } else {
-          const error = "Unexpected token \"" + element + "\"";
-          throw new Error(error);
-        }
+
+    const parens = ["(", ")"];
+    const operators = ["+", "-", "*", "**", "/", "%", "==", "!=", "<", ">", "<=", ">="];
+
+    if (parens.includes(element)) {
+      return {
+        type: "paren",
+        value: element
+      }
+    } else if (operators.includes(element)) {
+      return {
+        type: "operator",
+        value: element
+      }
+    } else if (is_number(element)) {
+      return {
+        type: "number",
+        value: normalize(make(element.replace("+", "")))
+      }
+    } else {
+      const error = "Unexpected token \"" + element + "\"";
+      throw new Error(error);
     }
   });
 
@@ -574,6 +573,26 @@ function evaluate(source, precision = -4) {
           case "==":
             type = "boolean";
             value = eq(val1, val2);
+            break;
+          case "!=":
+            type = "boolean";
+            value = !eq(val1, val2);
+            break;
+          case "<":
+            type = "boolean";
+            value = lt(val1, val2);
+            break;
+          case ">":
+            type = "boolean";
+            value = lt(val2, val1);
+            break;
+          case "<=":
+            type = "boolean";
+            value = lt(val1, val2) || eq(val1, val2);
+            break;
+          case ">=":
+            type = "boolean";
+            value = lt(val2, val1) || eq(val1, val2);
         }
 
         const result = {

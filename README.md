@@ -14,13 +14,10 @@ Note: This library is a work in progress and shouldn't be used in production.
 0.1 + 0.2 === 0.3;                     // false
 bigfloat.evaluate("0.1 + 0.2 == 0.3"); // true
 
-0.1 + 0.2; // 0.30000000000000004
+0.1 + 0.2;                      // 0.30000000000000004
 bigfloat.evaluate("0.1 + 0.2"); // "0.3"
 
-1 + Number.EPSILON; // 1.0000000000000002
-bigfloat.evaluate(`1 + ${Number.EPSILON}`); // "1.0000000000000002220446049250313"
-
-1 + Number.EPSILON / 2; // 1
+1 + Number.EPSILON / 2;                         // 1
 bigfloat.evaluate(`1 + ${Number.EPSILON / 2}`); // "1.00000000000000011102230246251565"
 ```
 
@@ -76,8 +73,14 @@ bigfloat.evaluate("10 / 3", -5); // "3.33333"
 
 Or a boolean:
 ```javascript
-bigfloat.evaluate("10 / 3 == 3"); // false
+bigfloat.evaluate(`4 >= ${Math.PI}`); // true
 ```
+
+The tokens that make up the expression can be:
+- Parenthesis: (,)
+- Number: Decimal form or scientific e-notation
+- Operator: Arithmetic +,-,/,*,%,** Relational ===,==,!==,!=,<,>,<=,>=
+
 
 It would be nice to have a transpiler that replaces JavaScript numbers and operators for bigfloat function calls, but it seemed to me very convenient to have this functionality available at runtime.
 
