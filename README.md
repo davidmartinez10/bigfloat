@@ -19,6 +19,9 @@ bigfloat.evaluate("0.1 + 0.2"); // "0.3"
 
 1 + Number.EPSILON / 2;                         // 1
 bigfloat.evaluate(`1 + ${Number.EPSILON / 2}`); // "1.00000000000000011102230246251565"
+
+2 ** 2 ** 2 ** 2 ** 2;                      // Infinity
+bigfloat.evaluate("2 ** 2 ** 2 ** 2 ** 2"); // 2003529930406846464979072351560255750447825475569751...(More than 19 thousand digits)
 ```
 
 It also understands scientific e-notation:
@@ -45,6 +48,7 @@ bigfloat.eq(
 - [sub(minuend, substrahend)](#subminuend-substrahend)
 - [mul(multiplicand, multiplier)](#mulmultiplicand-multiplier)
 - [div(dividend, divisor, precision)](#divdividend-divisor-precision)
+- [Changelog](#changelog)
 
 # Installation
 ```bash
@@ -85,7 +89,6 @@ The tokens that make up the expression can be:
 It would be nice to have a transpiler that replaces JavaScript numbers and operators for bigfloat function calls, but it seemed to me very convenient to have this functionality available at runtime.
 
 Caveats:
-- The parser relies on a technique that was used in the FORTRAN I compiler that consists in fully parenthesizing the expression before evaluating it, thus exponentiation operators are left-associative like those of MATLAB and Excel. This will be replaced with a Top Down Operator Precedence parser in the near future and this issue will be solved.
 -  The exponentiation operator (** or ^) only supports integer exponents as of now, but I plan on expanding the library with more advanced functions.
 
 # make(number)
@@ -131,3 +134,6 @@ bigfloat.div(
   -4
 ); // { coefficient: 23529n, exponent: -4 }
 ```
+# Changelog
+- 1.1.8
+  · Exponentiation operators(^, **) are now right-associative.

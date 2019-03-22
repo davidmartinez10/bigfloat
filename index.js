@@ -443,27 +443,30 @@ function scientific(a) {
 }
 
 function evaluate(source, precision = -4) {
+  if (typeof source !== "string") {
+    throw new Error("The first parameter was expected to be a string.");
+  }
   // This function relies on an algorithm that fully parenthesizes the expression
   function parenthesize(expr) {
     return (
-      "((((("
+      "(((("
       + expr
-        .replace(/\(/g, "(((((")
-        .replace(/\)/g, ")))))")
-        .replace(/(?<!\!)\=\=\=?/g, "))))==((((")
-        .replace(/\<\=/g, "))))<=((((")
-        .replace(/\>\=/g, "))))>=((((")
-        .replace(/\<(?!\=)/g, "))))<((((")
-        .replace(/\>(?!\=)/g, "))))>((((")
-        .replace(/\!\=\=?/g, "))))!=((((")
-        .replace(/(?<!e)\+/g, ")))+(((")
-        .replace(/(?<!e)\-(?!\d)/g, ")))-(((")
-        .replace(/\^|\*\*/g, ")**(")
-        .replace(/(?<!\*)\*(?!\*)/g, "))*((")
-        .replace(/\//g, "))/((")
-        .replace(/\%/g, "))%((")
+        .replace(/\(/g, "((((")
+        .replace(/\)/g, "))))")
+        .replace(/(?<!\!)\=\=\=?/g, ")))==(((")
+        .replace(/\<\=/g, ")))<=(((")
+        .replace(/\>\=/g, ")))>=(((")
+        .replace(/\<(?!\=)/g, ")))<(((")
+        .replace(/\>(?!\=)/g, ")))>(((")
+        .replace(/\!\=\=?/g, ")))!=(((")
+        .replace(/(?<!e)\+/g, "))+((")
+        .replace(/(?<!e)\-(?!\d)/g, "))-((")
+        .replace(/\^|\*\*/g, "**")
+        .replace(/(?<!\*)\*(?!\*)/g, ")*(")
+        .replace(/\//g, ")/(")
+        .replace(/\%/g, ")%((")
         .replace(/ /g, "")
-      + ")))))"
+      + "))))"
     );
   }
 
@@ -479,7 +482,7 @@ function evaluate(source, precision = -4) {
   }
 
   // Tokenize the expression
-  const tokens = expression.match(rx_tokens).map(function (element) {
+  let tokens = expression.match(rx_tokens).map(function (element) {
 
     const parens = ["(", ")"];
     const operators = ["+", "-", "*", "**", "/", "%", "==", "!=", "<", ">", "<=", ">="];
@@ -502,6 +505,21 @@ function evaluate(source, precision = -4) {
     } else {
       const error = "Unexpected token \"" + element + "\"";
       throw new Error(error);
+    }
+  });
+
+  let n = 0;
+  tokens.forEach(function (element, index) {
+    if (element.value === "**") {
+      if (tokens[index + 2].value === "**") {
+        tokens.splice(index + 1, 0, { value: "(", type: "paren" });
+        n += 1;
+      } else {
+        while (n) {
+          n -= 1;
+          tokens.splice(index + 3, 0, { value: ")", type: "paren" });
+        }
+      }
     }
   });
 
@@ -544,55 +562,61 @@ function evaluate(source, precision = -4) {
             ? i - 1
             : i
         ), arr.length);
-        const val1 = ops[0].value;
-        const val2 = ops[2].value;
+        const a = ops[0].value;
+        const b = ops[2].value;
         let value;
         let type = "number";
         switch (ops[1].value) {
           case "+":
-            value = add(val1, val2);
+            value = add(a, b);
             break;
           case "-":
-            value = sub(val1, val2);
+            value = sub(a, b);
             break;
           case "*":
-            value = mul(val1, val2);
+            value = mul(a, b);
             break;
           case "/":
-            value = div(val1, val2, precision);
+            value = div(a, b, precision);
             break;
           // For the moment only integer exponents are supported in the power() function
           case "**":
-            value = (function power(val = val1, n = 1) {
-              if (n === number(val2)) {
-                return val;
+            value = a;
+            let n = 1;
+            while (true) {
+              if (b.exponent !== 0) {
+                throw new Error("Exponents containing decimal fractions are not supported yet.")
               }
-              return power(mul(val1, val), n + 1);
-            }());
+              if (n === number(b)) {
+                break;
+              }
+              value = mul(value, a);
+              n += 1;
+            }
             break;
           case "==":
             type = "boolean";
-            value = eq(val1, val2);
+            value = eq(a, b);
             break;
           case "!=":
             type = "boolean";
-            value = !eq(val1, val2);
+            value = !eq(a, b);
             break;
           case "<":
             type = "boolean";
-            value = lt(val1, val2);
+            value = lt(a, b);
             break;
           case ">":
             type = "boolean";
-            value = lt(val2, val1);
+            value = lt(b, a);
             break;
           case "<=":
             type = "boolean";
-            value = lt(val1, val2) || eq(val1, val2);
+            value = lt(a, b) || eq(a, b);
             break;
           case ">=":
             type = "boolean";
-            value = lt(val2, val1) || eq(val1, val2);
+            value = lt(b, a) || eq(a, b);
         }
 
         const result = {
