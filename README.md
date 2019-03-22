@@ -21,7 +21,7 @@ bigfloat.evaluate("0.1 + 0.2"); // "0.3"
 bigfloat.evaluate(`1 + ${Number.EPSILON / 2}`); // "1.00000000000000011102230246251565"
 
 2 ** 2 ** 2 ** 2 ** 2;                      // Infinity
-bigfloat.evaluate("2 ** 2 ** 2 ** 2 ** 2"); // 2003529930406846464979072351560255750447825475569751...(More than 19 thousand digits)
+bigfloat.evaluate("2 ** 2 ** 2 ** 2 ** 2"); // "2003529930406846464979072351560255750447825475569751...(More than 19 thousand digits)
 ```
 
 It also understands scientific e-notation:
