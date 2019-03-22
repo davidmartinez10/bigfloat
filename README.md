@@ -135,5 +135,5 @@ bigfloat.div(
 ); // { coefficient: 23529n, exponent: -4 }
 ```
 # Changelog
-- 1.1.8
-  · Exponentiation operators(^, **) are now right-associative.
+1.1.8
+- Exponentiation operators(^, **) are now right-associative.
