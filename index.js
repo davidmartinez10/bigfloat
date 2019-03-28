@@ -1,6 +1,6 @@
 // big_float.js
 // David Martínez (based on the original work by Douglas Crockford)
-// 2019-03-10
+// 2019-03-28
 
 // You can access the big decimal floating point object in your module
 // by importing it.
@@ -24,6 +24,8 @@
     normalize, number, power, repeat, scientific, sign, signum, slice, string,
     sub, ten, two, zero
 */
+
+const PRECISION = -14;
 
 function is_big_float(big) {
   return (
@@ -157,7 +159,7 @@ function abs_lt(comparahend, comparator) {
   );
 }
 
-function div(dividend, divisor, precision = -4) {
+function div(dividend, divisor, precision = PRECISION) {
   if (is_zero(dividend)) {
     return zero;
   }
@@ -442,7 +444,19 @@ function scientific(a) {
   return s;
 }
 
-function evaluate(source, precision = -4) {
+function sqrt(n) { 
+  let x = n; 
+  let y = make("1"); 
+  let e = make(Number.EPSILON);
+  while (lt(e, sub(x, y))) { 
+      x = div(add(x, y), make("2"));
+      y = div(n, x); 
+  } 
+  return x; 
+}
+
+
+function evaluate(source, precision = PRECISION) {
   if (typeof source !== "string") {
     throw new Error("The first parameter was expected to be a string.");
   }
@@ -662,5 +676,6 @@ module.exports = Object.freeze({
   string,
   sub,
   zero,
-  evaluate
+  evaluate,
+  sqrt
 });

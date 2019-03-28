@@ -70,7 +70,7 @@ The exponent is a number that indicates where to place the decimal point.
 This bigfloat object represents the decimal value 52.2299
 
 # evaluate(expression, precision)
-This function takes an expression in string form, and a negative integer for precision (default is -4) and returns a string:
+This function takes an expression in string form, and a negative integer for precision (default is -14) and returns a string:
 ```javascript
 bigfloat.evaluate("10 / 3", -5); // "3.33333"
 ```
@@ -137,3 +137,5 @@ bigfloat.div(
 # Changelog
 1.1.8
 - Exponentiation operators(^, **) are now right-associative.
+1.1.9
+- Added a sqrt() function
