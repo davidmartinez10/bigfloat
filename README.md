@@ -11,6 +11,8 @@ Because of this it requires Node >= 10.4.0 or a Chrome >= 67 based browser. Fire
 Note: This library is a work in progress and shouldn't be used in production.
 
 ```javascript
+import bigfloat from "bigfloat.js";
+
 0.1 + 0.2 === 0.3;                     // false
 bigfloat.evaluate("0.1 + 0.2 == 0.3"); // true
 
@@ -30,12 +32,10 @@ bigfloat.evaluate("1 + 2.220446049250313e-16"); // "1.00000000000000022204460492
 ```
 This library provides a set of functions for basic operations, and an evaluate() function that makes bigfloat operations behind the scenes. The first operation shown above can also be performed by making use of the other provided functions like this:
 ```javascript
-bigfloat.eq(
-  bigfloat.add(
-    bigfloat.make("0.1"),
-    bigfloat.make("0.2")
-  ),
-  bigfloat.make("0.3")
+const { eq, add, make } = bigfloat;
+eq(
+  add(make("0.1"), make("0.2")),
+  make("0.3")
 ); // true
 ```
 - [bigfloat.js](#bigfloatjs)
@@ -44,18 +44,12 @@ bigfloat.eq(
 - [evaluate(expression, precision)](#evaluateexpression-precision)
 - [make(number)](#makenumber)
 - [string(bigfloat)](#stringbigfloat)
-- [add(augend, addend)](#addaugend-addend)
-- [sub(minuend, substrahend)](#subminuend-substrahend)
-- [mul(multiplicand, multiplier)](#mulmultiplicand-multiplier)
-- [div(dividend, divisor, precision)](#divdividend-divisor-precision)
+- [Other useful functions](#other-useful-functions)
 - [Changelog](#changelog)
 
 # Installation
 ```bash
-npm install bigfloat.js
-```
-```javascript
-import bigfloat from "bigfloat.js";
+npm install bigfloat.js --save
 ```
 
 # The bigfloat object
@@ -70,7 +64,7 @@ The exponent is a number that indicates where to place the decimal point.
 This bigfloat object represents the decimal value 52.2299
 
 # evaluate(expression, precision)
-This function takes an expression in string form, and a negative integer for precision (default is -14) and returns a string:
+This function takes an expression in string form, and a negative integer for precision (default is -24) and returns a string:
 ```javascript
 bigfloat.evaluate("10 / 3", -5); // "3.33333"
 ```
@@ -83,13 +77,10 @@ bigfloat.evaluate(`4 >= ${Math.PI}`); // true
 The tokens that make up the expression can be:
 - Parenthesis: (,)
 - Number: Decimal form or scientific e-notation
-- Operator: Arithmetic +,-,/,*,%,** Relational ===,==,!==,!=,<,>,<=,>=
+- Operator: Arithmetic +,-,/,*,** Relational ===,==,!==,!=,<,>,<=,>=
 
 
 It would be nice to have a transpiler that replaces JavaScript numbers and operators for bigfloat function calls, but it seemed to me very convenient to have this functionality available at runtime.
-
-Caveats:
--  The exponentiation operator (** or ^) only supports integer exponents as of now, but I plan on expanding the library with more advanced functions.
 
 # make(number)
 This function takes a number in a string or number form and returns a bigfloat object.
@@ -104,38 +95,36 @@ This function takes a bigfloat object and returns a string containing the decima
 bigfloat.string({ coefficient: 522299n, exponent: -4 }); // "53.23"
 ```
 
-# add(augend, addend)
-This function takes two operands and returns the sum.
-```javascript
-bigfloat.add(
-  bigfloat.make(23.632),
-  bigfloat.make(65.231)
-); // { coefficient: 888629n, exponent: -4 }
-```
-# sub(minuend, substrahend)
-```javascript
-bigfloat.sub(
-  bigfloat.make(15),
-  bigfloat.make(7)
-); // { coefficient: 8n, exponent: 0 }
-```
-# mul(multiplicand, multiplier)
-```javascript
-bigfloat.mul(
-  bigfloat.make(64),
-  bigfloat.make(64)
-); // { coefficient: 4096n, exponent: 0 }
-```
-# div(dividend, divisor, precision)
-```javascript
-bigfloat.div(
-  bigfloat.make(40),
-  bigfloat.make(17),
-  -4
-); // { coefficient: 23529n, exponent: -4 }
-```
+# Other useful functions
+- add(augend, addend)
+- sub(minuend, substrahend)
+- mul(multiplicand, multiplier)
+- div(dividend, divisor, precision)
+- exponentiation(base, exponent)
+- eq(comparahend, comparator)
+- lt(comparahend, comparator)
+- gt(comparahend, comparator)
+- sqrt(n)
+- abs(n)
+- fraction(n)
+- integer(n)
+- is_big_float(n)
+- is_negative(n)
+- is_positive(n)
+- is_zero(n)
+- neg(n)
+- normalize(n)
+- number(n)
+- scientific(n)
+
+
 # Changelog
 1.1.8
 - Exponentiation operators(^, **) are now right-associative.
+
 1.1.9
-- Added a sqrt() function
+- Added a sqrt() function.
+
+1.1.10
+- Added an exponentiation() function.
+- Exponentiation operations now support non-integer exponents.

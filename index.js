@@ -1,31 +1,8 @@
 // big_float.js
 // David Martínez (based on the original work by Douglas Crockford)
-// 2019-03-28
+// 2019-03-29
 
-// You can access the big decimal floating point object in your module
-// by importing it.
-
-//      import big_float from "./big_float.js";
-
-//      big_float.eq(
-//          big_float.add(
-//              big_float.make("0.1"),
-//              big_float.make("0.2")
-//          ),
-//          big_float.make("0.3")
-//      )                           // true
-
-/*jslint bitwise */
-
-/*property
-    abs, abs_lt, add, coefficient, create, div, divrem, eq, exponent, fraction,
-    freeze, integer, isFinite, isSafeInteger, is_big_float, is_big_integer,
-    is_negative, is_positive, is_zero, length, lt, make, match, mul, neg,
-    normalize, number, power, repeat, scientific, sign, signum, slice, string,
-    sub, ten, two, zero
-*/
-
-const PRECISION = -14;
+const PRECISION = -24;
 
 function is_big_float(big) {
   return (
@@ -135,6 +112,10 @@ function eq(comparahend, comparator) {
 
 function lt(comparahend, comparator) {
   return is_negative(sub(comparahend, comparator));
+}
+
+function gt(comparahend, comparator) {
+  return lt(comparator, comparahend);
 }
 
 function mul(multiplicand, multiplier) {
@@ -444,21 +425,72 @@ function scientific(a) {
   return s;
 }
 
-function sqrt(n) { 
-  let x = n; 
-  let y = make("1"); 
-  let e = make(Number.EPSILON);
-  while (lt(e, sub(x, y))) { 
-      x = div(add(x, y), make("2"));
-      y = div(n, x); 
-  } 
-  return x; 
+const EPSILON = make("0.0000000000000000000000000000000000000000000000001");
+const ZERO = make("0");
+const ONE = make("1");
+const TWO = make("2");
+
+function sqrt(n) {
+  let x = n;
+  let y = ONE;
+  while (lt(EPSILON, sub(x, y))) {
+    x = div(add(x, y), TWO);
+    y = div(n, x);
+  }
+  return x;
 }
 
+function exponentiation(base, exp) {
+  if (eq(exp, ZERO)) {
+    return ONE;
+  }
+
+  if (is_negative(exp)) {
+    return div(ONE, exponentiation(base, abs(exp)));
+  }
+
+  if (exp.exponent === 0) {
+    let result = base;
+    let n = 1;
+    while (true) {
+      if (n === number(exp)) {
+        break;
+      }
+      result = mul(result, base);
+      n += 1;
+    }
+    return result;
+  }
+  if (gt(exp, ONE) || eq(exp, ONE)) {
+    const temp = exponentiation(base, div(exp, TWO));
+    return mul(temp, temp);
+  } else {
+    let low = ZERO;
+    let high = ONE;
+
+    let sqr = sqrt(base);
+    let acc = sqr;
+    let mid = div(high, TWO);
+
+    while (gt(abs(sub(mid, exp)), EPSILON)) {
+      sqr = sqrt(sqr);
+
+      if (lt(mid, exp) || eq(mid, exp)) {
+        low = mid;
+        acc = mul(acc, sqr);
+      } else {
+        high = mid;
+        acc = mul(acc, div(ONE, sqr));
+      }
+      mid = div(add(low, high), TWO);
+    }
+    return acc;
+  }
+}
 
 function evaluate(source, precision = PRECISION) {
   if (typeof source !== "string") {
-    throw new Error("The first parameter was expected to be a string.");
+    throw Error("The first parameter was expected to be a string.");
   }
   // This function relies on an algorithm that fully parenthesizes the expression
   function parenthesize(expr) {
@@ -478,7 +510,7 @@ function evaluate(source, precision = PRECISION) {
         .replace(/\^|\*\*/g, "**")
         .replace(/(?<!\*)\*(?!\*)/g, ")*(")
         .replace(/\//g, ")/(")
-        .replace(/\%/g, ")%((")
+        .replace(/\%/g, ")%(")
         .replace(/ /g, "")
       + "))))"
     );
@@ -500,7 +532,9 @@ function evaluate(source, precision = PRECISION) {
 
     const parens = ["(", ")"];
     const operators = ["+", "-", "*", "**", "/", "%", "==", "!=", "<", ">", "<=", ">="];
-
+    if (element === "%") {
+      throw Error("The modulo operator is not supported yet.")
+    }
     if (parens.includes(element)) {
       return {
         type: "paren",
@@ -518,7 +552,7 @@ function evaluate(source, precision = PRECISION) {
       }
     } else {
       const error = "Unexpected token \"" + element + "\"";
-      throw new Error(error);
+      throw Error(error);
     }
   });
 
@@ -578,65 +612,42 @@ function evaluate(source, precision = PRECISION) {
         ), arr.length);
         const a = ops[0].value;
         const b = ops[2].value;
-        let value;
-        let type = "number";
-        switch (ops[1].value) {
-          case "+":
-            value = add(a, b);
-            break;
-          case "-":
-            value = sub(a, b);
-            break;
-          case "*":
-            value = mul(a, b);
-            break;
-          case "/":
-            value = div(a, b, precision);
-            break;
-          // For the moment only integer exponents are supported in the power() function
-          case "**":
-            value = a;
-            let n = 1;
-            while (true) {
-              if (b.exponent !== 0) {
-                throw new Error("Exponents containing decimal fractions are not supported yet.")
-              }
-              if (n === number(b)) {
-                break;
-              }
-              value = mul(value, a);
-              n += 1;
-            }
-            break;
-          case "==":
-            type = "boolean";
-            value = eq(a, b);
-            break;
-          case "!=":
-            type = "boolean";
-            value = !eq(a, b);
-            break;
-          case "<":
-            type = "boolean";
-            value = lt(a, b);
-            break;
-          case ">":
-            type = "boolean";
-            value = lt(b, a);
-            break;
-          case "<=":
-            type = "boolean";
-            value = lt(a, b) || eq(a, b);
-            break;
-          case ">=":
-            type = "boolean";
-            value = lt(b, a) || eq(a, b);
-        }
+        const operator = ops[1].value;
 
-        const result = {
-          type,
-          value
-        };
+        const bigfloat_return = {
+          "+": function () { return add(a, b) },
+          "-": function () { return sub(a, b) },
+          "*": function () { return mul(a, b) },
+          "/": function () {
+            return (
+              is_zero(b)
+                ? ZERO
+                : div(a, b, precision)
+            )
+          },
+          "**": function () { return exponentiation(a, b) }
+        }[operator];
+        const boolean_return = {
+          "==": function () { return eq(a, b) },
+          "!=": function () { return !eq(a, b) },
+          "<": function () { return lt(a, b) },
+          ">": function () { return gt(a, b) },
+          "<=": function () { return lt(a, b) || eq(a, b) },
+          ">=": function () { return gt(a, b) || eq(a, b) }
+        }[operator];
+
+        const result = (
+          bigfloat_return
+          ? {
+            type: "number",
+            value: bigfloat_return()
+          }
+          : {
+            type: "boolean",
+            value: boolean_return()
+          }
+        );
+
         return resolve([
           ...start,
           result,
@@ -677,5 +688,6 @@ module.exports = Object.freeze({
   sub,
   zero,
   evaluate,
-  sqrt
+  sqrt,
+  exponentiation
 });
