@@ -2,35 +2,37 @@
 // David Martínez (based on the original work by Douglas Crockford)
 // 2019-03-29
 
+const big_integer = require("./bigint.js");
+
 const PRECISION = -24;
 
 function is_big_float(big) {
   return (
     typeof big === "object"
-    && typeof big.coefficient === "bigint"
+    && big_integer.is_big_integer(big.coefficient)
     && Number.isSafeInteger(big.exponent)
   );
 }
 
 function is_negative(big) {
-  return big.coefficient < 0n;
+  return big_integer.is_negative(big.coefficient);
 }
 
 function is_positive(big) {
-  return big.coefficient >= 0n;
+  return big_integer.is_positive(big.coefficient);
 }
 
 function is_zero(big) {
-  return big.coefficient === 0n;
+  return big_integer.is_zero(big.coefficient);
 }
 
 const zero = Object.create(null);
-zero.coefficient = 0n;
+zero.coefficient = big_integer.zero;
 zero.exponent = 0;
 Object.freeze(zero);
 
 function make_big_float(coefficient, exponent) {
-  if (coefficient === 0n) {
+  if (big_integer.is_zero(coefficient)) {
     return zero;
   }
   const new_big_float = Object.create(null);
@@ -39,26 +41,30 @@ function make_big_float(coefficient, exponent) {
   return Object.freeze(new_big_float);
 }
 
-const big_integer_ten_million = 10000000n;
+const big_integer_ten_million = big_integer.make(10000000);
 
 function number(a) {
   return (
     is_big_float(a)
       ? (
         a.exponent === 0
-          ? Number(a.coefficient)
-          : Number(a.coefficient) * (10 ** a.exponent)
+          ? big_integer.number(a.coefficient)
+          : big_integer.number(a.coefficient) * (10 ** a.exponent)
       )
       : (
         typeof a === "number"
           ? a
-          : Number(a)
+          : (
+            big_integer.is_big_integer(a)
+              ? big_integer.number(a)
+              : Number(a)
+          )
       )
   );
 }
 
 function neg(a) {
-  return make_big_float(-a.coefficient, a.exponent);
+  return make_big_float(big_integer.neg(a.coefficient), a.exponent);
 }
 
 function abs(a) {
@@ -71,17 +77,17 @@ function abs(a) {
 
 function conform_op(op) {
   return function (a, b) {
-    const differential = b.exponent - a.exponent;
+    const differential = a.exponent - b.exponent;
     return (
       differential === 0
         ? make_big_float(op(a.coefficient, b.coefficient), a.exponent)
         : (
-          differential < 0
+          differential > 0
             ? make_big_float(
               op(
-                (
-                  a.coefficient
-                  * (10n ** BigInt(-differential))
+                big_integer.mul(
+                  a.coefficient,
+                  big_integer.power(big_integer.ten, big_integer.make(differential))
                 ),
                 b.coefficient
               ),
@@ -90,7 +96,10 @@ function conform_op(op) {
             : make_big_float(
               op(
                 a.coefficient,
-                b.coefficient * (10n ** BigInt(differential))
+                big_integer.mul(
+                  b.coefficient,
+                  big_integer.power(big_integer.ten, big_integer.make(-differential))
+                )
               ),
               a.exponent
             )
@@ -99,12 +108,8 @@ function conform_op(op) {
   };
 }
 
-const add = conform_op(function (a, b) {
-  return a + b;
-});
-const sub = conform_op(function (a, b) {
-  return a - b;
-});
+const add = conform_op(big_integer.add);
+const sub = conform_op(big_integer.sub);
 
 function eq(comparahend, comparator) {
   return comparahend === comparator || is_zero(sub(comparahend, comparator));
@@ -120,23 +125,8 @@ function gt(comparahend, comparator) {
 
 function mul(multiplicand, multiplier) {
   return make_big_float(
-    multiplicand.coefficient * multiplier.coefficient,
+    big_integer.mul(multiplicand.coefficient, multiplier.coefficient),
     multiplicand.exponent + multiplier.exponent
-  );
-}
-
-function abs_lt(comparahend, comparator) {
-  return (
-    String(
-      comparahend < 0n
-        ? -comparahend
-        : comparahend
-    ).length
-    < String(
-      comparator < 0n
-        ? -comparator
-        : comparator
-    ).length
   );
 }
 
@@ -156,14 +146,18 @@ function div(dividend, divisor, precision = PRECISION) {
     precision = number(precision);
   }
   if (exponent > precision) {
-    coefficient = coefficient * (10n ** BigInt(exponent - precision));
+    coefficient = big_integer.mul(
+      coefficient,
+      big_integer.power(big_integer.ten, big_integer.make(exponent - precision))
+    );
     exponent = precision;
   }
-  coefficient = coefficient / divisor.coefficient;
-
+  [coefficient] = big_integer.divrem(
+    coefficient,
+    divisor.coefficient
+  );
   return make_big_float(coefficient, exponent);
 }
-
 
 function normalize(a) {
   let { coefficient, exponent } = a;
@@ -175,7 +169,10 @@ function normalize(a) {
     // If the exponent is positive, multiply the coefficient by '10 **' exponent.
 
     if (exponent > 0) {
-      coefficient = coefficient * (10n ** BigInt(exponent));
+      coefficient = big_integer.mul(
+        coefficient,
+        big_integer.power(big_integer.ten, big_integer.make(exponent))
+      );
       exponent = 0;
     } else {
       let quotient;
@@ -187,23 +184,23 @@ function normalize(a) {
       // To help this go a little faster, we first try units of ten million,
       // reducing 7 zeros at a time.
 
-      while (exponent <= -7 && (coefficient % 10n === 0n)) {
-        [quotient, remainder] = [
-          coefficient / big_integer_ten_million,
-          coefficient % big_integer_ten_million
-        ];
-        if (remainder !== 0n) {
+      while (exponent <= -7 && (coefficient[1] & 127) === 0) {
+        [quotient, remainder] = big_integer.divrem(
+          coefficient,
+          big_integer_ten_million
+        );
+        if (remainder !== big_integer.zero) {
           break;
         }
         coefficient = quotient;
         exponent += 7;
       }
-      while (exponent < 0 && (coefficient % 10n === 0n)) {
-        [quotient, remainder] = [
-          coefficient / 10n,
-          coefficient % 10n
-        ];
-        if (remainder !== 0n) {
+      while (exponent < 0 && (coefficient[1] & 1) === 0) {
+        [quotient, remainder] = big_integer.divrem(
+          coefficient,
+          big_integer.ten
+        );
+        if (remainder !== big_integer.zero) {
           break;
         }
         coefficient = quotient;
@@ -219,7 +216,10 @@ function integer(a) {
   // The integer function is like the normalize function except that it throws
   // away significance. It discards the digits after the decimal point.
 
-  let { coefficient, exponent } = a;
+  const { coefficient, exponent } = a;
+  if (coefficient.length < 2) {
+    return zero;
+  }
 
   // If the exponent is zero, it is already an integer.
 
@@ -231,20 +231,32 @@ function integer(a) {
   // multiply the coefficient by 10 ** exponent.
 
   if (exponent > 0) {
-    return make_big_float(coefficient * (10n ** BigInt(exponent)), 0);
+    return make_big_float(
+      big_integer.mul(
+        coefficient,
+        big_integer.power(big_integer.ten, big_integer.make(exponent))
+      ),
+      0
+    );
   }
 
   // If the exponent is negative, divide the coefficient by 10 ** -exponent.
   // This truncates the unnecessary bits. This might be a zero result.
 
-  return make_big_float(coefficient / (10n ** BigInt(-exponent)), 0);
+  return make_big_float(
+    big_integer.div(
+      coefficient,
+      big_integer.power(big_integer.ten, big_integer.make(-exponent))
+    ),
+    0
+  );
 }
 
 function fraction(a) {
   return sub(a, integer(a));
 }
 
-function deconstruct(number) {
+function deconstruct(n) {
 
   // This function deconstructs a number, reducing it to its components:
   // a sign, an integer coefficient, and an exponent, such that
@@ -252,7 +264,7 @@ function deconstruct(number) {
   //  '      number = sign * coefficient * (2 ** exponent)'
 
   let sign = 1;
-  let coefficient = number;
+  let coefficient = n;
   let exponent = 0;
 
   // Remove the sign from the coefficient.
@@ -262,7 +274,7 @@ function deconstruct(number) {
     sign = -1;
   }
 
-  if (Number.isFinite(number) && number !== 0) {
+  if (Number.isFinite(n) && n !== 0) {
 
     // Reduce the coefficient: We can obtain the exponent by dividing the number by
     // two until it goes to zero. We add the number of divisions to -1128, which is
@@ -303,7 +315,7 @@ function deconstruct(number) {
     sign,
     coefficient,
     exponent,
-    number
+    number: n
   };
 }
 
@@ -322,18 +334,18 @@ function make(a, b) {
   //.      (string, radix)
   //.      (number)
 
-  if (typeof a === "bigint") {
+  if (big_integer.is_big_integer(a)) {
     return make_big_float(a, b || 0);
   }
   if (typeof a === "string") {
     if (Number.isSafeInteger(b)) {
-      return make(BigInt(parseInt(a, b)), 0);
+      return make(big_integer.make(a, b), 0);
     }
-    let parts = a.match(number_pattern);
+    const parts = a.match(number_pattern);
     if (parts) {
-      let frac = parts[2] || "";
+      const frac = parts[2] || "";
       return make(
-        BigInt(parts[1] + frac),
+        big_integer.make(parts[1] + frac),
         (Number(parts[3]) || 0) - frac.length
       );
     }
@@ -350,14 +362,14 @@ function make(a, b) {
     if (sign < 0) {
       coefficient = -coefficient;
     }
-    coefficient = BigInt(coefficient);
+    coefficient = big_integer.make(coefficient);
 
     // If the exponent is negative, then we can divide by '2 ** abs(exponent)'.
 
     if (exponent < 0) {
       return normalize(div(
         make(coefficient, 0),
-        make(2n ** BigInt(-exponent), 0),
+        make(big_integer.power(big_integer.two, big_integer.make(-exponent)), 0),
         b
       ));
     }
@@ -366,7 +378,10 @@ function make(a, b) {
     // by '2 **' exponent.
 
     if (exponent > 0) {
-      coefficient = coefficient * (2n ** BigInt(exponent));
+      coefficient = big_integer.mul(
+        coefficient,
+        big_integer.power(big_integer.two, big_integer.make(exponent))
+      );
       exponent = 0;
     }
     return make(coefficient, exponent);
@@ -380,12 +395,16 @@ function string(a, radix) {
   if (is_zero(a)) {
     return "0";
   }
+  if (is_big_float(radix)) {
+    radix = normalize(radix);
+    return (
+      (radix && radix.exponent === 0)
+        ? big_integer.string(integer(a).coefficient, radix.coefficient)
+        : undefined
+    );
+  }
   a = normalize(a);
-  let s = String((
-    a.coefficient < 0n
-      ? -a.coefficient
-      : a.coefficient
-  ));
+  let s = big_integer.string(big_integer.abs(a.coefficient));
   if (a.exponent < 0) {
     let point = s.length + a.exponent;
     if (point <= 0) {
@@ -396,7 +415,7 @@ function string(a, radix) {
   } else if (a.exponent > 0) {
     s += "0".repeat(a.exponent);
   }
-  if (a.coefficient < 0n) {
+  if (big_integer.is_negative(a.coefficient)) {
     s = "-" + s;
   }
   return s;
@@ -407,19 +426,15 @@ function scientific(a) {
     return "0";
   }
   a = normalize(a);
-  let s = String((
-    a.coefficient < 0n
-      ? -a.coefficient
-      : a.coefficient
-  ));
-  let e = a.exponent + s.length - 1;
+  let s = big_integer.string(big_integer.abs(a.coefficient));
+  const e = a.exponent + s.length - 1;
   if (s.length > 1) {
     s = s.slice(0, 1) + "." + s.slice(1);
   }
   if (e !== 0) {
     s += "e" + e;
   }
-  if (a.coefficient < 0n) {
+  if (big_integer.is_negative(a.coefficient)) {
     s = "-" + s;
   }
   return s;
@@ -433,7 +448,7 @@ const TWO = make("2");
 function sqrt(n) {
   let x = n;
   let y = ONE;
-  while (lt(EPSILON, sub(x, y))) {
+  while (gt(sub(x, y), EPSILON)) {
     x = div(add(x, y), TWO);
     y = div(n, x);
   }
@@ -452,10 +467,7 @@ function exponentiation(base, exp) {
   if (exp.exponent === 0) {
     let result = base;
     let n = 1;
-    while (true) {
-      if (n === number(exp)) {
-        break;
-      }
+    while (n !== number(exp)) {
       result = mul(result, base);
       n += 1;
     }
@@ -464,34 +476,34 @@ function exponentiation(base, exp) {
   if (gt(exp, ONE) || eq(exp, ONE)) {
     const temp = exponentiation(base, div(exp, TWO));
     return mul(temp, temp);
-  } else {
-    let low = ZERO;
-    let high = ONE;
-
-    let sqr = sqrt(base);
-    let acc = sqr;
-    let mid = div(high, TWO);
-
-    while (gt(abs(sub(mid, exp)), EPSILON)) {
-      sqr = sqrt(sqr);
-
-      if (lt(mid, exp) || eq(mid, exp)) {
-        low = mid;
-        acc = mul(acc, sqr);
-      } else {
-        high = mid;
-        acc = mul(acc, div(ONE, sqr));
-      }
-      mid = div(add(low, high), TWO);
-    }
-    return acc;
   }
+  let low = ZERO;
+  let high = ONE;
+
+  let sqr = sqrt(base);
+  let acc = sqr;
+  let mid = div(high, TWO);
+
+  while (gt(abs(sub(mid, exp)), EPSILON)) {
+    sqr = sqrt(sqr);
+
+    if (lt(mid, exp) || eq(mid, exp)) {
+      low = mid;
+      acc = mul(acc, sqr);
+    } else {
+      high = mid;
+      acc = mul(acc, div(ONE, sqr));
+    }
+    mid = div(add(low, high), TWO);
+  }
+  return acc;
 }
 
 function evaluate(source, precision = PRECISION) {
   if (typeof source !== "string") {
     throw Error("The first parameter was expected to be a string.");
   }
+
   // This function relies on an algorithm that fully parenthesizes the expression
   function parenthesize(expr) {
     return (
@@ -499,61 +511,60 @@ function evaluate(source, precision = PRECISION) {
       + expr
         .replace(/\(/g, "((((")
         .replace(/\)/g, "))))")
-        .replace(/(?<!\!)\=\=\=?/g, ")))==(((")
-        .replace(/\<\=/g, ")))<=(((")
-        .replace(/\>\=/g, ")))>=(((")
-        .replace(/\<(?!\=)/g, ")))<(((")
-        .replace(/\>(?!\=)/g, ")))>(((")
-        .replace(/\!\=\=?/g, ")))!=(((")
-        .replace(/(?<!e)\+/g, "))+((")
-        .replace(/(?<!e)\-(?!\d)/g, "))-((")
+        .replace(/(^|[^!])===?/g, ")))==(((")
+        .replace(/<=/g, ")))<=(((")
+        .replace(/>=/g, ")))>=(((")
+        .replace(/<(?!=)/g, ")))<(((")
+        .replace(/>(?!=)/g, ")))>(((")
+        .replace(/!==?/g, ")))!=(((")
+        .replace(/(^|[^e])\+/g, "))+((")
+        .replace(/(^|[^e])-(?!\d)/g, "))-((")
         .replace(/\^|\*\*/g, "**")
-        .replace(/(?<!\*)\*(?!\*)/g, ")*(")
+        .replace(/(^|[^*])\*(?!\*)/g, ")*(")
         .replace(/\//g, ")/(")
-        .replace(/\%/g, ")%(")
+        .replace(/%/g, ")%(")
         .replace(/ /g, "")
       + "))))"
     );
   }
 
   const expression = parenthesize(source);
-  const rx_tokens = /(-?\d+(?:\.\d+)?(?:e(\-?|\+?)\d+)?)|(\(|\))|(\+|\-|\/|\*\*|(?<!\!)\=\=|\!\=|\<\=?|\>\=?|\*|\^|\%)/g;
+  const rx_tokens = /(-?\d+(?:\.\d+)?(?:e(-?|\+?)\d+)?)|(\(|\))|(\+|-|\/|\*\*|(^|[^!])==|!=|<=?|>=?|\*|\^|%)/g;
   // Capture groups
   // [1] Number
   // [2] Paren
   // [3] Operator
 
-  function is_number(n) {
-    return !Number.isNaN(Number(n));
+  function is_number(token) {
+    return !Number.isNaN(Number(token));
   }
 
   // Tokenize the expression
-  let tokens = expression.match(rx_tokens).map(function (element) {
+  const tokens = expression.match(rx_tokens).map(function (element) {
 
     const parens = ["(", ")"];
     const operators = ["+", "-", "*", "**", "/", "%", "==", "!=", "<", ">", "<=", ">="];
     if (element === "%") {
-      throw Error("The modulo operator is not supported yet.")
+      throw Error("The modulo operator is not supported yet.");
     }
     if (parens.includes(element)) {
       return {
         type: "paren",
         value: element
-      }
+      };
     } else if (operators.includes(element)) {
       return {
         type: "operator",
         value: element
-      }
+      };
     } else if (is_number(element)) {
       return {
         type: "number",
         value: normalize(make(element.replace("+", "")))
-      }
-    } else {
-      const error = "Unexpected token \"" + element + "\"";
-      throw Error(error);
+      };
     }
+    const error = "Unexpected token \"" + element + "\"";
+    throw Error(error);
   });
 
   let n = 0;
@@ -615,42 +626,62 @@ function evaluate(source, precision = PRECISION) {
         const operator = ops[1].value;
 
         const bigfloat_return = {
-          "+": function () { return add(a, b) },
-          "-": function () { return sub(a, b) },
-          "*": function () { return mul(a, b) },
-          "/": function () {
+          "+" () {
+            return add(a, b);
+          },
+          "-" () {
+            return sub(a, b);
+          },
+          "*" () {
+            return mul(a, b);
+          },
+          "/" () {
             return (
               is_zero(b)
                 ? ZERO
                 : div(a, b, precision)
-            )
+            );
           },
-          "**": function () { return exponentiation(a, b) }
+          "**" () {
+            return exponentiation(a, b);
+          }
         }[operator];
         const boolean_return = {
-          "==": function () { return eq(a, b) },
-          "!=": function () { return !eq(a, b) },
-          "<": function () { return lt(a, b) },
-          ">": function () { return gt(a, b) },
-          "<=": function () { return lt(a, b) || eq(a, b) },
-          ">=": function () { return gt(a, b) || eq(a, b) }
+          "==" () {
+            return eq(a, b);
+          },
+          "!=" () {
+            return !eq(a, b);
+          },
+          "<" () {
+            return lt(a, b);
+          },
+          ">" () {
+            return gt(a, b);
+          },
+          "<=" () {
+            return lt(a, b) || eq(a, b);
+          },
+          ">=" () {
+            return gt(a, b) || eq(a, b);
+          }
         }[operator];
 
-        const result = (
+        const res = (
           bigfloat_return
-          ? {
-            type: "number",
-            value: bigfloat_return()
-          }
-          : {
-            type: "boolean",
-            value: boolean_return()
-          }
+            ? {
+              type: "number",
+              value: bigfloat_return()
+            }
+            : {
+              type: "boolean",
+              value: boolean_return()
+            }
         );
 
         return resolve([
           ...start,
-          result,
+          res,
           ...end
         ]);
       }

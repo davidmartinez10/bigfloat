@@ -3,12 +3,9 @@ A library for arbitrary precision decimal floating point arithmetic that can exa
 unlike JavaScript's number data type which is 64-bit binary floating point.
 
 Based on the original work by Douglas Crockford.
-His original implementation made use of a big integer library that was also included in his book How JavaScript Works.
 This implementation is built upon the bigint data type that was added to the language, and it runs pretty fast on V8.
-
-Because of this it requires Node >= 10.4.0 or a Chrome >= 67 based browser. Firefox requires a flag to be enabled manually.
-
-Note: This library is a work in progress and shouldn't be used in production.
+For Node versions lower than 10.4.0 it falls back to Google Chrome Labs' implementation of ECMAScript big integers: JSBI.
+Node >= 7.0.0 is required.
 
 ```javascript
 import bigfloat from "bigfloat.js";
@@ -128,3 +125,6 @@ bigfloat.string({ coefficient: 522299n, exponent: -4 }); // "53.23"
 1.1.10
 - Added an exponentiation() function.
 - Exponentiation operations now support non-integer exponents.
+
+1.2.0
+- Added support for Node >= 7.0.0 and most web browsers.

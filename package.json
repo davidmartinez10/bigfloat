@@ -10,7 +10,17 @@
     "bigfloat",
     "float",
     "decimal",
-    "bigdecimal"
+    "bigdecimal",
+    "number",
+    "math",
+    "arithmetic",
+    "floating point",
+    "point",
+    "mathematics",
+    "calculator",
+    "precision",
+    "decimal float",
+    "big integer"
   ],
   "author": "David Martínez",
   "license": "UNLICENSED",
@@ -21,5 +31,11 @@
   "bugs": {
     "url": "https://github.com/davidmartinez10/bigfloat/issues"
   },
-  "homepage": "https://github.com/davidmartinez10/bigfloat#readme"
+  "homepage": "https://github.com/davidmartinez10/bigfloat#readme",
+  "dependencies": {
+    "jsbi": "^2.0.5"
+  },
+  "engines": {
+    "node": ">=7.0.0"
+  }
 }
