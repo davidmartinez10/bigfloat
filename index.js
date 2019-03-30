@@ -1,6 +1,6 @@
 // big_float.js
 // David Martínez (based on the original work by Douglas Crockford)
-// 2019-03-29
+// 2019-03-30
 
 const big_integer = require("./bigint.js");
 

@@ -23,7 +23,7 @@
     "big integer"
   ],
   "author": "David Martínez",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/davidmartinez10/bigfloat.git"
@@ -37,5 +37,6 @@
   },
   "engines": {
     "node": ">=7.0.0"
-  }
+  },
+  "devDependencies": {}
 }
