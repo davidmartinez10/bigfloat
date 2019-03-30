@@ -529,7 +529,7 @@ function evaluate(source, precision = PRECISION) {
   }
 
   const expression = parenthesize(source);
-  const rx_tokens = /(-?\d+(?:\.\d+)?(?:e(-?|\+?)\d+)?)|(\(|\))|(\+|-|\/|\*\*|(^|[^!])==|!=|<=?|>=?|\*|\^|%)/g;
+  const rx_tokens = /(-?\d+(?:\.\d+)?(?:e(-?|\+?)\d+)?)|(\(|\))|(\+|-|\/|\*\*|==|!=|<=?|>=?|\*|\^|%)/g;
   // Capture groups
   // [1] Number
   // [2] Paren
