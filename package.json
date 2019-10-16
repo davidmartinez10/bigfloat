@@ -1,10 +1,18 @@
 {
   "name": "bigfloat.js",
-  "version": "1.2.2",
+  "version": "2.0.0",
   "description": "A library for arbitrary precision floating point arithmetic.",
-  "main": "index",
+  "main": "lib/mod.js",
+  "types": "lib/mod.d.ts",
   "scripts": {
-    "test": ""
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "lint": "tslint -p tsconfig.json",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run lint",
+    "preversion": "npm run lint",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "keywords": [
     "bigfloat",
@@ -32,11 +40,14 @@
     "url": "https://github.com/davidmartinez10/bigfloat/issues"
   },
   "homepage": "https://github.com/davidmartinez10/bigfloat#readme",
+  "devDependencies": {
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.4"
+  },
+  "files": [
+    "lib/**/*"
+  ],
   "dependencies": {
-    "jsbi": "^2.0.5"
-  },
-  "engines": {
-    "node": ">=7.0.0"
-  },
-  "devDependencies": {}
+    "jsbi": "^3.1.1"
+  }
 }

@@ -3,13 +3,9 @@ A library for arbitrary precision decimal floating point arithmetic that can exa
 unlike JavaScript's number data type which is 64-bit binary floating point.
 
 Based on the original work by Douglas Crockford.
-This implementation is built upon the bigint data type that was added to the language, and it runs pretty fast on V8.
-For Node versions lower than 10.4.0 it falls back to Google Chrome Labs' implementation of ECMAScript big integers: JSBI.
-Node >= 7.0.0 is required.
+This implementation is built upon the Google Chrome Labs' implementation of ECMAScript big integers: JSBI.
 
 ```javascript
-import bigfloat from "bigfloat.js";
-
 0.1 + 0.2 === 0.3;                     // false
 bigfloat.evaluate("0.1 + 0.2 == 0.3"); // true
 
@@ -18,22 +14,27 @@ bigfloat.evaluate("0.1 + 0.2"); // "0.3"
 
 1 + Number.EPSILON / 2;                         // 1
 bigfloat.evaluate(`1 + ${Number.EPSILON / 2}`); // "1.00000000000000011102230246251565"
-
-2 ** 2 ** 2 ** 2 ** 2;                      // Infinity
-bigfloat.evaluate("2 ** 2 ** 2 ** 2 ** 2"); // "2003529930406846464979072351560255750447825475569751...(More than 19 thousand digits)
 ```
 
 It also understands scientific e-notation:
 ```javascript
 bigfloat.evaluate("1 + 2.220446049250313e-16"); // "1.0000000000000002220446049250313"
 ```
+
 This library provides a set of functions for basic operations, and an evaluate() function that makes bigfloat operations behind the scenes. The first operation shown above can also be performed by making use of the other provided functions like this:
 ```javascript
-const { eq, add, make } = bigfloat;
+const { eq, add, BigFloat } = bigfloat;
 eq(
-  add(make("0.1"), make("0.2")),
-  make("0.3")
+  add(BigFloat("0.1"), BigFloat("0.2")),
+  BigFloat("0.3")
 ); // true
+```
+
+You can also use the familiar Decimal.js API (partial implementation as of now):
+```javascript
+import { Decimal } from "bigfloat.js";
+
+new Decimal("2").sqrt().toString() // "1.414213562373095048801688"
 ```
 - [bigfloat.js](#bigfloatjs)
 - [Installation](#installation)
@@ -49,10 +50,28 @@ eq(
 npm install bigfloat.js --save
 ```
 
+# Importing the bigfloat module
+CommonJS:
+```javascript
+const bigfloat = require("bigfloat.js").default;
+const { Decimal } = require("bigfloat.js"); 
+```
+
+ESModules or TS:
+```javascript
+import bigfloat, { Decimal } from "bigfloat.js";
+```
+
 # The bigfloat object
+```typescript
+interface BigFloat {
+  coefficient: JSBI;
+  exponent: number;
+}
+```
 ```javascript
 {
-  coefficient: 522299n,
+  coefficient: BigInt(522299),
   exponent: -4
 }
 ```
@@ -82,8 +101,8 @@ It would be nice to have a transpiler that replaces JavaScript numbers and opera
 # make(number)
 This function takes a number in a string or number form and returns a bigfloat object.
 ```javascript
-bigfloat.make(53.23);   // { coefficient: 522299n, exponent: -4 }
-bigfloat.make("12000"); // { coefficient: 12000n, exponent: 0 }
+BigFloat(53.23);   // { coefficient: BigInt(522299), exponent: -4 }
+BigFloat("12000"); // { coefficient: BigInt(12000), exponent: 0 }
 ```
 
 # string(bigfloat)
@@ -92,30 +111,12 @@ This function takes a bigfloat object and returns a string containing the decima
 bigfloat.string({ coefficient: 522299n, exponent: -4 }); // "53.23"
 ```
 
-# Other useful functions
-- add(augend, addend)
-- sub(minuend, substrahend)
-- mul(multiplicand, multiplier)
-- div(dividend, divisor, precision)
-- exponentiation(base, exponent)
-- eq(comparahend, comparator)
-- lt(comparahend, comparator)
-- gt(comparahend, comparator)
-- sqrt(n)
-- abs(n)
-- fraction(n)
-- integer(n)
-- is_big_float(n)
-- is_negative(n)
-- is_positive(n)
-- is_zero(n)
-- neg(n)
-- normalize(n)
-- number(n)
-- scientific(n)
-
-
 # Changelog
+2.0.0
+- TS rewrite.
+- Added an exported Decimal class.
+- Improved browser and legacy Node.js versions compatibility.
+
 1.1.8
 - Exponentiation operators(^, **) are now right-associative.
 
