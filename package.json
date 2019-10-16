@@ -4,9 +4,10 @@
   "description": "A library for arbitrary precision floating point arithmetic.",
   "main": "lib/mod.js",
   "types": "lib/mod.d.ts",
+  "unpkg": "lib/bigfloat.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "tsc && rollup --config",
     "lint": "tslint -p tsconfig.json",
     "prepare": "npm run build",
     "prepublishOnly": "npm run lint",
@@ -41,8 +42,13 @@
   },
   "homepage": "https://github.com/davidmartinez10/bigfloat#readme",
   "devDependencies": {
+    "rollup": "^1.24.0",
+    "rollup-plugin-uglify": "^6.0.3",
     "tslint": "^5.20.0",
-    "typescript": "^3.6.4"
+    "typescript": "^3.6.4",
+    "@babel/core": "^7.6.4",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-commonjs": "^10.1.0"
   },
   "files": [
     "lib/**/*"
