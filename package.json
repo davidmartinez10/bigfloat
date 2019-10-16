@@ -1,6 +1,6 @@
 {
   "name": "bigfloat.js",
-  "version": "2.0.0",
+  "version": "1.2.2",
   "description": "A library for arbitrary precision floating point arithmetic.",
   "main": "lib/mod.js",
   "types": "lib/mod.d.ts",
