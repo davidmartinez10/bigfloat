@@ -34,13 +34,15 @@ You can also use the familiar Decimal.js API (partial implementation as of now):
 ```javascript
 import { Decimal } from "bigfloat.js";
 
-new Decimal("2").sqrt().toString() // "1.414213562373095048801688"
+new Decimal("2").sqrt().toString() // "1.4142"
 ```
 - [bigfloat.js](#bigfloatjs)
 - [Installation](#installation)
+- [Importing the bigfloat module](#importing-the-bigfloat-module)
 - [The bigfloat object](#the-bigfloat-object)
+- [Change precision](#change-precision)
 - [evaluate(expression, precision)](#evaluateexpression-precision)
-- [make(number)](#makenumber)
+- [bigfloat(number) / make(number)](#makenumber)
 - [string(bigfloat)](#stringbigfloat)
 - [Other useful functions](#other-useful-functions)
 - [Changelog](#changelog)
@@ -79,8 +81,21 @@ The coefficient is a bigint that contains all of the digits that make up the num
 The exponent is a number that indicates where to place the decimal point.
 This bigfloat object represents the decimal value 52.2299
 
+# Change precision
+This function only takes negative integers. The default precision is -4.
+```typescript
+bigfloat.string(bigfloat.sqrt(BigFloat("2"))); // 1.4142
+bigfloat.set_precision(-10);
+bigfloat.string(bigfloat.sqrt(BigFloat("2"))); // 1.4142135623
+``` 
+```typescript
+new Decimal(2).sqrt().toString(); // 1.4142
+new Decimal(2).setPrecision(-10);
+new Decimal(2).sqrt().toString(); // 1.4142135623
+``` 
+
 # evaluate(expression, precision)
-This function takes an expression in string form, and a negative integer for precision (default is -24) and returns a string:
+This function takes an expression in string form, and a negative integer for precision (default is -4) and returns a string:
 ```javascript
 bigfloat.evaluate("10 / 3", -5); // "3.33333"
 ```
@@ -98,20 +113,27 @@ The tokens that make up the expression can be:
 
 It would be nice to have a transpiler that replaces JavaScript numbers and operators for bigfloat function calls, but it seemed to me very convenient to have this functionality available at runtime.
 
-# make(number)
+# BigFloat(number) / make(number)
 This function takes a number in a string or number form and returns a bigfloat object.
 ```javascript
-BigFloat(53.23);   // { coefficient: BigInt(522299), exponent: -4 }
-BigFloat("12000"); // { coefficient: BigInt(12000), exponent: 0 }
+BigFloat(53.23);   // { coefficient: BigInt(5323), exponent: -2 }
+make("12000"); // { coefficient: BigInt(12000), exponent: 0 }
 ```
 
 # string(bigfloat)
 This function takes a bigfloat object and returns a string containing the decimal representation of the number. The conversion is exact.
 ```javascript
-bigfloat.string({ coefficient: 522299n, exponent: -4 }); // "53.23"
+bigfloat.string({ coefficient: BigInt(5323), exponent: -2 }); // "53.23"
 ```
 
 # Changelog
+2.0.2
+- Edit README.MD
+- Change build process
+
+2.0.1
+- Add bundler for unpkg.
+
 2.0.0
 - TS rewrite.
 - Added an exported Decimal class.

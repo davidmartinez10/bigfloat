@@ -7,7 +7,7 @@
   "unpkg": "lib/bigfloat.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && rollup --config",
+    "build": "bili",
     "lint": "tslint -p tsconfig.json",
     "prepare": "npm run build",
     "prepublishOnly": "npm run lint",
@@ -29,7 +29,12 @@
     "calculator",
     "precision",
     "decimal float",
-    "big integer"
+    "big integer",
+    "typescript",
+    "bigfloat-ts",
+    "bigfloat-esnext",
+    "decimal.js",
+    "node"
   ],
   "author": "David Martínez",
   "license": "MIT",
@@ -42,18 +47,19 @@
   },
   "homepage": "https://github.com/davidmartinez10/bigfloat#readme",
   "devDependencies": {
-    "rollup": "^1.24.0",
-    "rollup-plugin-uglify": "^6.0.3",
+    "@babel/preset-env": "^7.6.3",
+    "bili": "^4.8.1",
+    "rollup-plugin-typescript2": "^0.24.3",
     "tslint": "^5.20.0",
-    "typescript": "^3.6.4",
-    "@babel/core": "^7.6.4",
-    "rollup-plugin-babel": "^4.3.3",
-    "rollup-plugin-commonjs": "^10.1.0"
+    "typescript": "^3.6.4"
   },
   "files": [
     "lib/**/*"
   ],
   "dependencies": {
     "jsbi": "^3.1.1"
+  },
+  "directories": {
+    "lib": "lib"
   }
 }
