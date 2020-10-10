@@ -2,17 +2,13 @@
   "name": "bigfloat.js",
   "version": "2.0.2",
   "description": "A library for arbitrary precision floating point arithmetic.",
-  "main": "lib/mod.js",
-  "module": "lib/mod.mjs",
-  "types": "lib/mod.d.ts",
+  "main": "lib/cjs/mod.js",
+  "module": "lib/esm/mod.js",
+  "types": "lib/cjs/mod.d.ts",
   "unpkg": "lib/",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "bili && cp-cli ./lib/mod.esm.js ./lib/mod.mjs",
-    "lint": "tslint -p tsconfig.json",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run lint",
-    "preversion": "npm run lint",
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
+    "prepublishOnly": "npm run build",
     "version": "git add -A src",
     "postversion": "git push && git push --tags"
   },
@@ -48,18 +44,17 @@
   },
   "homepage": "https://github.com/davidmartinez10/bigfloat#readme",
   "devDependencies": {
-    "@babel/preset-env": "^7.6.3",
-    "bili": "^4.8.1",
-    "cp-cli": "^2.0.0",
-    "rollup-plugin-typescript2": "^0.24.3",
-    "tslint": "^5.20.0",
-    "typescript": "^3.6.4"
+    "@types/node": "^14.11.8",
+    "@typescript-eslint/eslint-plugin": "^4.4.0",
+    "@typescript-eslint/parser": "^4.4.0",
+    "eslint": "^7.11.0",
+    "typescript": "^4.0.3"
   },
   "files": [
     "lib/**/*"
   ],
   "dependencies": {
-    "jsbi": "^3.1.1"
+    "jsbi": "^3.1.4"
   },
   "directories": {
     "lib": "lib"

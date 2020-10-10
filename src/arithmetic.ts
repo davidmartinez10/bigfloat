@@ -1,25 +1,33 @@
 import JSBI from "jsbi";
-import { BIGINT_ONE, BIGINT_TEN, EPSILON, ONE, PRECISION, TWO, ZERO } from "./constants";
-import { integer, make_big_float, number } from "./constructors";
-import { is_integer, is_negative, is_zero } from "./predicates";
-import { eq, gt, lt } from "./relational";
-import { BigFloat } from "./types";
+import {
+  BIGINT_ONE,
+  BIGINT_TEN,
+  EPSILON,
+  ONE,
+  PRECISION,
+  TWO,
+  ZERO
+} from "./constants.js";
+import { integer, make_big_float, number } from "./constructors.js";
+import { is_integer, is_negative, is_zero } from "./predicates.js";
+import { eq, gt, lt } from "./relational.js";
+import { IBigFloat } from "./types";
 
-export function neg(a: BigFloat) {
+export function neg(a: IBigFloat): IBigFloat {
   return make_big_float(JSBI.unaryMinus(a.coefficient), a.exponent);
 }
 
-export function abs(a: BigFloat) {
+export function abs(a: IBigFloat): IBigFloat {
   return is_negative(a) ? neg(a) : a;
 }
 
 function conform_op(op: (a: JSBI, b: JSBI) => JSBI) {
-  return function(a: BigFloat, b: BigFloat) {
+  return function (a: IBigFloat, b: IBigFloat) {
     const differential = a.exponent - b.exponent;
     return differential === 0
       ? make_big_float(op(a.coefficient, b.coefficient), a.exponent)
       : differential > 0
-      ? make_big_float(
+        ? make_big_float(
           op(
             JSBI.multiply(
               a.coefficient,
@@ -29,7 +37,7 @@ function conform_op(op: (a: JSBI, b: JSBI) => JSBI) {
           ),
           b.exponent
         )
-      : make_big_float(
+        : make_big_float(
           op(
             a.coefficient,
             JSBI.multiply(
@@ -45,7 +53,7 @@ function conform_op(op: (a: JSBI, b: JSBI) => JSBI) {
 export const add = conform_op(JSBI.add);
 export const sub = conform_op(JSBI.subtract);
 
-export function mul(multiplicand: BigFloat, multiplier: BigFloat) {
+export function mul(multiplicand: IBigFloat, multiplier: IBigFloat): IBigFloat {
   return make_big_float(
     JSBI.multiply(multiplicand.coefficient, multiplier.coefficient),
     multiplicand.exponent + multiplier.exponent
@@ -53,10 +61,10 @@ export function mul(multiplicand: BigFloat, multiplier: BigFloat) {
 }
 
 export function div(
-  dividend: BigFloat,
-  divisor: BigFloat,
+  dividend: IBigFloat,
+  divisor: IBigFloat,
   precision = PRECISION
-): BigFloat {
+): IBigFloat {
   if (is_zero(dividend) || is_zero(divisor)) {
     return ZERO;
   }
@@ -80,7 +88,7 @@ export function div(
   return make_big_float(coefficient, exponent);
 }
 
-export function sqrt(n: BigFloat) {
+export function sqrt(n: IBigFloat): IBigFloat {
   let x = n;
   let y = ONE;
   while (gt(sub(x, y), EPSILON)) {
@@ -90,7 +98,7 @@ export function sqrt(n: BigFloat) {
   return x;
 }
 
-export function exponentiation(base: BigFloat, exp: BigFloat): BigFloat {
+export function exponentiation(base: IBigFloat, exp: IBigFloat): IBigFloat {
   if (eq(exp, ZERO)) {
     return ONE;
   }
@@ -134,7 +142,7 @@ export function exponentiation(base: BigFloat, exp: BigFloat): BigFloat {
   return acc;
 }
 
-export function ceil(n: BigFloat) {
+export function ceil(n: IBigFloat): IBigFloat {
   if (is_integer(n)) {
     return n;
   } else {
@@ -142,6 +150,6 @@ export function ceil(n: BigFloat) {
   }
 }
 
-export function floor(n: BigFloat) {
+export function floor(n: IBigFloat): IBigFloat {
   return integer(n);
 }

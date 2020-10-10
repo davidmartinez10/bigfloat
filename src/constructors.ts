@@ -1,20 +1,20 @@
 import JSBI from "jsbi";
-import { sub } from "./arithmetic";
-import { BIGINT_TEN, BIGINT_TEN_MILLION, BIGINT_ZERO, ZERO } from "./constants";
-import { is_big_float, is_zero } from "./predicates";
-import { BigFloat, NumericValue } from "./types";
+import { sub } from "./arithmetic.js";
+import { BIGINT_TEN, BIGINT_TEN_MILLION, BIGINT_ZERO, ZERO } from "./constants.js";
+import { is_big_float, is_zero } from "./predicates.js";
+import { IBigFloat, NumericValue } from "./types";
 
-export function make_big_float(coefficient: JSBI, exponent: number): BigFloat {
+export function make_big_float(coefficient: JSBI, exponent: number): IBigFloat {
   if (JSBI.EQ(coefficient, BIGINT_ZERO)) {
     return ZERO;
   }
-  const new_big_float: BigFloat = Object.create(null);
+  const new_big_float: IBigFloat = Object.create(null);
   new_big_float.coefficient = coefficient;
   new_big_float.exponent = exponent;
   return Object.freeze(new_big_float);
 }
 
-export function number(a: NumericValue) {
+export function number(a: NumericValue): number {
   if (typeof a !== "number" && typeof a !== "string") {
     if (a instanceof JSBI) {
       return JSBI.toNumber(a);
@@ -27,7 +27,7 @@ export function number(a: NumericValue) {
   return Number(a);
 }
 
-export function normalize(a: BigFloat) {
+export function normalize(a: IBigFloat): IBigFloat {
   let { coefficient, exponent } = a;
 
   // If the exponent is zero, it is already normal.
@@ -66,7 +66,7 @@ export function normalize(a: BigFloat) {
   return make_big_float(coefficient, exponent);
 }
 
-export function integer(a: BigFloat) {
+export function integer(a: IBigFloat): IBigFloat {
   // The integer function is like the normalize function except that it throws
   // away significance. It discards the digits after the decimal point.
 
@@ -103,11 +103,11 @@ export function integer(a: BigFloat) {
   );
 }
 
-export function fraction(a: BigFloat) {
+export function fraction(a: IBigFloat): IBigFloat {
   return sub(a, integer(a));
 }
 
-export function make(a: NumericValue, b?: number | string): BigFloat {
+export function make(a: NumericValue, b?: number | string): IBigFloat {
   const number_pattern = /^(-?\d+)(?:\.(\d*))?(?:e(-?\d+))?$/;
 
   // . Capturing groups
@@ -135,7 +135,7 @@ export function make(a: NumericValue, b?: number | string): BigFloat {
   return ZERO;
 }
 
-export function string(a: BigFloat, radix?: BigFloat) {
+export function string(a: IBigFloat, radix?: IBigFloat): string | undefined {
   if (is_zero(a)) {
     return "0";
   }
@@ -166,7 +166,7 @@ export function string(a: BigFloat, radix?: BigFloat) {
   return s;
 }
 
-export function scientific(a: BigFloat) {
+export function scientific(a: IBigFloat): string {
   if (is_zero(a)) {
     return "0";
   }

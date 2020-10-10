@@ -1,19 +1,24 @@
-import * as arithmetic from "./arithmetic";
-import { set_precision } from "./constants";
-import * as constructors from "./constructors";
-import evaluate from "./interpreter";
-import * as predicates from "./predicates";
-import * as relational from "./relational";
+import * as arithmetic from "./arithmetic.js";
+import * as constructors from "./constructors.js";
+import * as predicates from "./predicates.js";
+import * as relational from "./relational.js";
+import evaluate from "./interpreter.js";
+import { set_precision } from "./constants.js";
 
-export { Decimal } from "./decimal";
-export { BigFloat } from "./types";
+export { BigFloat } from "./bigfloat.js";
+export { IBigFloat } from "./types";
 
-export default Object.freeze({
-  BigFloat: constructors.make,
+const bigfloat = {
   evaluate,
   set_precision,
   ...arithmetic,
   ...predicates,
   ...constructors,
-  ...relational,
-});
+  ...relational
+};
+
+if (typeof module === "object") {
+  Object.assign(exports, bigfloat);
+}
+
+export default bigfloat;

@@ -1,9 +1,9 @@
-import { add, div, exponentiation, mul, sub } from "./arithmetic";
-import { PRECISION, ZERO } from "./constants";
-import { make, normalize, string } from "./constructors";
-import { is_number, is_zero } from "./predicates";
-import { eq, gt, lt } from "./relational";
-import { BigFloat, TokenArray } from "./types";
+import { add, div, exponentiation, mul, sub } from "./arithmetic.js";
+import { PRECISION, ZERO } from "./constants.js";
+import { make, normalize, string } from "./constructors.js";
+import { is_number, is_zero } from "./predicates.js";
+import { eq, gt, lt } from "./relational.js";
+import { IBigFloat, TokenArray } from "./types";
 
 export default function evaluate(source: string, precision = PRECISION): string | boolean {
   if (typeof source !== "string") {
@@ -42,7 +42,7 @@ export default function evaluate(source: string, precision = PRECISION): string 
   // [3] Operator
 
   // Tokenize the expression
-  const tokens = (expression.match(rx_tokens) || []).map(function(element) {
+  const tokens = (expression.match(rx_tokens) || []).map(function (element) {
     const parens = ["(", ")"];
     const operators = [
       "+",
@@ -77,12 +77,11 @@ export default function evaluate(source: string, precision = PRECISION): string 
         value: normalize(make(element.replace("+", "")))
       };
     }
-    const error = 'Unexpected token "' + element + '"';
-    throw Error(error);
+    throw Error(`Unexpected token "${element}"`);
   });
 
   let n = 0;
-  tokens.forEach(function(element, index) {
+  tokens.forEach(function (element, index) {
     if (element.value === "**") {
       if (tokens[index + 2].value === "**") {
         tokens.splice(index + 1, 0, { value: "(", type: "paren" });
@@ -105,86 +104,88 @@ export default function evaluate(source: string, precision = PRECISION): string 
     let last_left_paren: number | undefined;
     let i = 0;
     while (i <= arr.length) {
-      const { value } = arr[i];
-      if (value === "(") {
-        last_left_paren = i;
-      }
-      if (value === ")") {
-        const start = arr.slice(0, last_left_paren);
-        const term = arr.splice(last_left_paren!, i - last_left_paren! + 1);
-        const end = arr.slice(last_left_paren, arr.length);
-        return resolve([...start, ...resolve(term), ...end]);
-      }
-      if (arr[i].type === "operator" && arr[i + 1].type !== "paren") {
-        const start = arr.slice(
-          0,
-          arr[i + 2].type === "operator" || arr[i + 2].type === "paren"
-            ? last_left_paren! + 1
-            : last_left_paren
-        );
-        const ops = arr.splice(i - 1, 3);
-        const end = arr.slice(
-          arr[i - 1].type === "operator" ||
-            (arr[i + 1] || {}).type === "paren" ||
-            i >= arr.length
-            ? i - 1
-            : i,
-          arr.length
-        );
-        const a = ops[0].value as BigFloat;
-        const b = ops[2].value as BigFloat;
-        const operator = ops[1].value as string;
+      if (typeof last_left_paren === "number") {
+        const { value } = arr[i];
+        if (value === "(") {
+          last_left_paren = i;
+        }
+        if (value === ")") {
+          const start = arr.slice(0, last_left_paren);
+          const term = arr.splice(last_left_paren, i - last_left_paren + 1);
+          const end = arr.slice(last_left_paren, arr.length);
+          return resolve([...start, ...resolve(term), ...end]);
+        }
+        if (arr[i].type === "operator" && arr[i + 1].type !== "paren") {
+          const start = arr.slice(
+            0,
+            arr[i + 2].type === "operator" || arr[i + 2].type === "paren"
+              ? last_left_paren + 1
+              : last_left_paren
+          );
+          const ops = arr.splice(i - 1, 3);
+          const end = arr.slice(
+            arr[i - 1].type === "operator" ||
+              (arr[i + 1] || {}).type === "paren" ||
+              i >= arr.length
+              ? i - 1
+              : i,
+            arr.length
+          );
+          const a = ops[0].value as IBigFloat;
+          const b = ops[2].value as IBigFloat;
+          const operator = ops[1].value as string;
 
-        const bigfloat_return = ({
-          "+"() {
-            return add(a, b);
-          },
-          "-"() {
-            return sub(a, b);
-          },
-          "*"() {
-            return mul(a, b);
-          },
-          "/"() {
-            return is_zero(b) ? ZERO : div(a, b, precision);
-          },
-          "**"() {
-            return exponentiation(a, b);
-          }
-        } as { [key: string]: () => BigFloat })[operator];
+          const bigfloat_return = ({
+            "+"() {
+              return add(a, b);
+            },
+            "-"() {
+              return sub(a, b);
+            },
+            "*"() {
+              return mul(a, b);
+            },
+            "/"() {
+              return is_zero(b) ? ZERO : div(a, b, precision);
+            },
+            "**"() {
+              return exponentiation(a, b);
+            }
+          } as { [key: string]: () => IBigFloat })[operator];
 
-        const boolean_return = ({
-          "=="() {
-            return eq(a, b);
-          },
-          "!="() {
-            return !eq(a, b);
-          },
-          "<"() {
-            return lt(a, b);
-          },
-          ">"() {
-            return gt(a, b);
-          },
-          "<="() {
-            return lt(a, b) || eq(a, b);
-          },
-          ">="() {
-            return gt(a, b) || eq(a, b);
-          }
-        } as { [key: string]: () => boolean })[operator];
+          const boolean_return = ({
+            "=="() {
+              return eq(a, b);
+            },
+            "!="() {
+              return !eq(a, b);
+            },
+            "<"() {
+              return lt(a, b);
+            },
+            ">"() {
+              return gt(a, b);
+            },
+            "<="() {
+              return lt(a, b) || eq(a, b);
+            },
+            ">="() {
+              return gt(a, b) || eq(a, b);
+            }
+          } as { [key: string]: () => boolean })[operator];
 
-        const res = bigfloat_return
-          ? {
+          const res = bigfloat_return
+            ? {
               type: "number",
               value: bigfloat_return()
             }
-          : {
+            : {
               type: "boolean",
               value: boolean_return()
             };
 
-        return resolve([...start, res, ...end]);
+          return resolve([...start, res, ...end]);
+        }
       }
       i += 1;
     }
@@ -193,7 +194,7 @@ export default function evaluate(source: string, precision = PRECISION): string 
   const [result] = resolve(tokens);
 
   if (result.type === "number") {
-    return string(result.value)!;
+    return string(result.value) as string;
   }
   return result.value;
 }
