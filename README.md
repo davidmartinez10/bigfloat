@@ -1,4 +1,4 @@
-[![N|Solid](https://raw.githubusercontent.com/davidmartinez10/bigfloat-esnext/master/bigfloat.jpg)](https://nodesource.com/products/nsolid)
+[![BigFloat](https://raw.githubusercontent.com/davidmartinez10/bigfloat-esnext/master/bigfloat.jpg)](https://github.com/davidmartinez10/bigfloat)
 
 A library for arbitrary precision decimal floating point arithmetic that can exactly represent all decimal fractions,
 unlike JavaScript's number data type which is 64-bit binary floating point.
@@ -66,14 +66,14 @@ new BigFloat(2).sqrt().toString();     // 1.4142135623
 ### The bigfloat object
 ```typescript
 interface IBigFloat {
-  coefficient: bigint;
+  coefficient: JSBI;
   exponent: number;
 }
 ```
 Valid bigfloat made from primitives:
 ```typescript
 const bigfloat: IBigFloat {
-  coefficient: 522299n,
+  coefficient: JSBI.BigInt(522299),
   exponent: -4
 };
 ```
