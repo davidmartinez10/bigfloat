@@ -18,14 +18,14 @@ NOTE: This is a compatibility package intended for cross-browser support. If you
 ```typescript
 import { make, string, sqrt } from "bigfloat.js";
 
-string(sqrt(make("2")));               // 1.4142
+string(sqrt(make("2")));               // "1.4142"
 ```
 
 ### Class based
 ```typescript
 import { BigFloat } from "bigfloat.js";
 
-new BigFloat("2").sqrt().toString();   // 1.4142
+new BigFloat("2").sqrt().toString();   // "1.4142"
 ```
 
 ### The evaluate() function
@@ -59,9 +59,9 @@ Valid tokens:
 ```typescript
 import { BigFloat, set_precision } from "bigfloat.js";
 
-new BigFloat(2).sqrt().toString();     // 1.4142
+new BigFloat(2).sqrt().toString();     // "1.4142"
 set_precision(-10);
-new BigFloat(2).sqrt().toString();     // 1.4142135623
+new BigFloat(2).sqrt().toString();     // "1.4142135623"
 ```
 ### The bigfloat object
 ```typescript
