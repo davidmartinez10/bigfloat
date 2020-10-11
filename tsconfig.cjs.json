@@ -4,5 +4,5 @@
     "target": "ES3",
     "module": "CommonJS",
     "outDir": "lib/cjs"
-  },
+  }
 }
