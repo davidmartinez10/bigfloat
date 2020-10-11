@@ -5,7 +5,7 @@ import { is_number, is_zero } from "./predicates.js";
 import { eq, gt, lt } from "./relational.js";
 import { IBigFloat, TokenArray } from "./types";
 
-export default function evaluate(source: string, precision = PRECISION): string | boolean {
+export function evaluate(source: string, precision = PRECISION): string | boolean {
   if (typeof source !== "string") {
     throw Error("The first parameter was expected to be a string.");
   }
