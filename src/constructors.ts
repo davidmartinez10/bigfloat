@@ -134,10 +134,20 @@ export function string(a: IBigFloat, radix?: IBigFloat): string {
 
 export function scientific(a: IBigFloat): string {
   if (is_zero(a)) { return "0"; }
-  a       = normalize(a);
+  a = normalize(a);
+
   let   s = String(is_negative(a) ? -a.coefficient : a.coefficient);
   const e = a.exponent + s.length - 1;
-  if (s.length > 1) { s = s.slice(0, 1) + "." + s.slice(1); }
+  if (s.length > 1) {
+    const decimals = [...s.slice(1)];
+    for (const d of decimals.toReversed()) {
+      if (d !== "0") { break; }
+      decimals.pop();
+    }
+    s = s.slice(0, 1);
+    "." + decimals.join("");
+  }
+
   if (e !== 0) { s += "e" + e; }
   if (is_negative(a)) { s = "-" + s; }
   return s;
