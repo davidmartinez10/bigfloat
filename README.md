@@ -14,14 +14,14 @@ This library provides three ways to make bigfloat operations:
 ```typescript
 import { make, string, sqrt } from "@davidmartinez/bigfloat";
 
-string(sqrt(make("2")));               // "1.4142"
+string(sqrt(make("2")));               // "1.41421"
 ```
 
 ### Class based
 ```typescript
 import { BigFloat } from "@davidmartinez/bigfloat";
 
-new BigFloat("2").sqrt().toString();   // "1.4142"
+new BigFloat("2").sqrt().toString();   // "1.41421"
 ```
 
 ### The evaluate() function
