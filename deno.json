@@ -3,6 +3,13 @@
     "exports": "./src/mod.ts",
     "version": "3.1.0",
     "license": "MIT",
+    "publish": {
+        "include": [
+            "LICENSE",
+            "README.md",
+            "src/**/*.ts"
+        ]
+    },
     "tasks": {
         "test": "deno test --allow-none",
         "check": "deno check src/mod.ts",
