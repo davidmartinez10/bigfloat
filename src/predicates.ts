@@ -17,7 +17,7 @@ export function is_negative(big: IBigFloat): boolean {
 }
 
 export function is_positive(big: IBigFloat): boolean {
-  return big.coefficient >= BIGINT_ZERO;
+  return big.coefficient > BIGINT_ZERO;
 }
 
 export function is_zero(big: IBigFloat): boolean {
