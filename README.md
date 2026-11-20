@@ -31,7 +31,7 @@ new BigFloat("2").sqrt().toString();   // "1.4142"
 evaluate(expression: string, precision?: number): string | boolean
 ```
 >The first argument can be any valid arithmetic or relational expression, including scientific e-notation.
->Precision should be a negative integer. Default is -4.
+>Precision should be a negative integer. Default is -5.
 ```typescript
 import { evaluate } from "https://deno.land/x/bigfloat/mod.ts";
 
@@ -52,7 +52,7 @@ evaluate(`4 >= ${Math.PI}`);           // true
 Valid tokens:
   - Parenthesis: (,)
   - Number: Decimal, integer or scientific e-notation
-  - Operator: Arithmetic +,-,/,*,** Relational =\=\=,=\=,!==,!=,<,>,<=,>=
+  - Operator: Arithmetic +,-,/,%,*,** Relational =\=\=,=\=,!==,!=,<,>,<=,>=
 
 ### Change precision
 ```typescript
@@ -73,7 +73,7 @@ interface IBigFloat {
 
 Valid bigfloat made from primitives:
 ```typescript
-const bigfloat: IBigFloat {
+const bigfloat: IBigFloat = {
   coefficient: 522299n,
   exponent: -4
 };

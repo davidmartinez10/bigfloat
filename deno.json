@@ -1,0 +1,10 @@
+{
+    "name": "bigfloat",
+    "exports": "./mod.ts",
+    "license": "MIT",
+    "tasks": {
+        "test": "deno test --allow-none",
+        "check": "deno check mod.ts",
+        "lint": "deno lint"
+    }
+}

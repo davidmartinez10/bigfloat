@@ -1,55 +1,76 @@
-import { abs, add, ceil, div, exponentiation, floor, mul, neg, sqrt, sub } from "./arithmetic.ts";
-import { make, string } from "./constructors.ts";
-import { is_integer, is_negative, is_positive, is_zero } from "./predicates.ts";
-import { eq, gt, gte, lt, lte } from "./relational.ts";
-import type { IBigFloat, NumericValue } from "./types.ts";
+import {abs, add, ceil, div, exponentiation, floor, modulo, mul, neg, sqrt, sub} from "./arithmetic.ts";
+import {PRECISION, set_precision} from "./constants.ts";
+import {make, make_big_float, string} from "./constructors.ts";
+import {evaluate} from "./interpreter.ts";
+import {is_integer, is_negative, is_positive, is_zero} from "./predicates.ts";
+import {eq, gt, gte, lt, lte} from "./relational.ts";
+import type {IBigFloat, NumericValue} from "./types.ts";
 
 export class BigFloat implements IBigFloat {
-  public exponent: number;
-  public coefficient: bigint;
+  readonly exponent: number;
+  readonly coefficient: bigint;
+  readonly[Symbol.toStringTag] = "BigFloat" as const;
   constructor(n: NumericValue) {
     const { exponent, coefficient } = make(n);
-    this.exponent = exponent;
-    this.coefficient = coefficient;
+    this.exponent                   = exponent;
+    this.coefficient                = coefficient;
+    if (! (this instanceof BigFloat)) { return new BigFloat(n); }
   }
 
-  public decimalPlaces(): number { return -this.exponent; }
-  public isInteger(): boolean { return is_integer(this); }
-  public isNegative(): boolean { return is_negative(this); }
-  public isPositive(): boolean { return is_positive(this); }
-  public isZero(): boolean { return is_zero(this); }
-  public toString(): string { return string(this) as string; }
-  public equals(y: NumericValue): boolean { return eq(this, make(y)); }
-  public greaterThan(y: NumericValue): boolean { return gt(this, make(y)); }
-  public greaterThanOrEqualTo(y: NumericValue): boolean { return gte(this, make(y)); }
-  public lessThan(y: NumericValue): boolean { return lt(this, make(y)); }
-  public lessThanOrEqualTo(y: NumericValue): boolean { return lte(this, make(y)); }
-  public absoluteValue(): BigFloat { return new BigFloat(abs(this)); }
-  public negated(): BigFloat { return new BigFloat(neg(this)); }
-  public squareRoot(): BigFloat { return new BigFloat(sqrt(this)); }
-  public dividedBy(y: NumericValue): BigFloat { return new BigFloat(div(this, make(y))); }
-  public minus(y: NumericValue): BigFloat { return new BigFloat(sub(this, make(y))); }
-  public plus(y: NumericValue): BigFloat { return new BigFloat(add(this, make(y))); }
-  public times(y: NumericValue): BigFloat { return new BigFloat(mul(this, make(y))); }
-  public toPower(y: NumericValue): BigFloat { return new BigFloat(exponentiation(this, make(y))); }
-  public ceil(): BigFloat { return new BigFloat(ceil(this)); }
-  public floor(): BigFloat { return new BigFloat(floor(this)); }
+  static get precision(): number { return PRECISION; }
+  static set precision(n: number) { set_precision(n); }
+  static evaluate = evaluate;
 
-  public dp = this.decimalPlaces;
-  public isNeg = this.isNegative;
-  public eq = this.equals;
-  public gt = this.greaterThan;
-  public gte = this.greaterThanOrEqualTo;
-  public lt = this.lessThan;
-  public lte = this.lessThanOrEqualTo;
-  public isInt = this.isInteger;
-  public isPos = this.isPositive;
-  public abs = this.absoluteValue;
-  public neg = this.negated;
-  public sqrt = this.squareRoot;
-  public div = this.dividedBy;
-  public sub = this.minus;
-  public add = this.plus;
-  public mul = this.times;
-  public pow = this.toPower;
+  decimalPlaces(): number { return Number(-this.exponent); } // WRONG
+  isInteger(): boolean { return is_integer(this); }
+  isNegative(): boolean { return is_negative(this); }
+  isPositive(): boolean { return is_positive(this); }
+  isZero(): boolean { return is_zero(this); }
+  equals(y: NumericValue): boolean { return eq(this, make(y)); }
+  greaterThan(y: NumericValue): boolean { return gt(this, make(y)); }
+  greaterThanOrEqualTo(y: NumericValue): boolean { return gte(this, make(y)); }
+  lessThan(y: NumericValue): boolean { return lt(this, make(y)); }
+  lessThanOrEqualTo(y: NumericValue): boolean { return lte(this, make(y)); }
+  absoluteValue(): BigFloat { return new BigFloat(abs(this)); }
+  negated(): BigFloat { return new BigFloat(neg(this)); }
+  squareRoot(): BigFloat { return new BigFloat(sqrt(this)); }
+  dividedBy(y: NumericValue): BigFloat {
+    return new BigFloat(div(this, make(y)));
+  }
+  minus(y: NumericValue): BigFloat { return new BigFloat(sub(this, make(y))); }
+  plus(y: NumericValue): BigFloat { return new BigFloat(add(this, make(y))); }
+  times(y: NumericValue): BigFloat { return new BigFloat(mul(this, make(y))); }
+  toPower(y: NumericValue): BigFloat {
+    return new BigFloat(exponentiation(this, make(y)));
+  }
+  ceil(): BigFloat { return new BigFloat(ceil(this)); }
+  floor(): BigFloat { return new BigFloat(floor(this)); }
+  modulo(y: NumericValue): BigFloat {
+    return new BigFloat(modulo(this, make(y)));
+  }
+
+  toString(): string { return string(this); }
+  valueOf(): IBigFloat {
+    return make_big_float(this.coefficient, this.exponent);
+  }
+
+  // aliases
+  dp    = this.decimalPlaces;
+  isNeg = this.isNegative;
+  eq    = this.equals;
+  gt    = this.greaterThan;
+  gte   = this.greaterThanOrEqualTo;
+  lt    = this.lessThan;
+  lte   = this.lessThanOrEqualTo;
+  isInt = this.isInteger;
+  isPos = this.isPositive;
+  abs   = this.absoluteValue;
+  neg   = this.negated;
+  sqrt  = this.squareRoot;
+  div   = this.dividedBy;
+  sub   = this.minus;
+  add   = this.plus;
+  mul   = this.times;
+  pow   = this.toPower;
+  mod   = this.modulo;
 }
