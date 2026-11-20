@@ -40,6 +40,7 @@ Deno.test("eq", function() {
 Deno.test("gt", function() {
   assertEquals(new BigFloat("4.333").gt(new BigFloat("1")), true);
   assertEquals(new BigFloat("4.333").gt(new BigFloat("4.333")), false);
+  assertEquals(new BigFloat(4000).greaterThan(1e+21), false);
 });
 
 Deno.test("gte", function() {
