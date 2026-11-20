@@ -162,7 +162,7 @@ export function make(a: NumericValue, b?: number|string): IBigFloat {
   if (typeof a === "bigint") {
     return make_big_float(a, Number(b) || 0);
   } else if (typeof a === "string" || typeof a === "number") {
-    a = String(a);
+    a = String(a).replace("+", "");
     if (Number.isSafeInteger(Number(b))) {
       return make(BigInt(parseInt(a, Number(b))), 0);
     }
