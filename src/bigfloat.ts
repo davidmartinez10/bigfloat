@@ -1,9 +1,5 @@
-import {abs, add, ceil, div, exponentiation, floor, modulo, mul, neg, sqrt, sub} from "./arithmetic.ts";
-import {PRECISION, set_precision} from "./constants.ts";
-import {make, make_big_float, string} from "./constructors.ts";
 import {evaluate} from "./interpreter.ts";
-import {is_integer, is_negative, is_positive, is_zero} from "./predicates.ts";
-import {eq, gt, gte, lt, lte} from "./relational.ts";
+import {abs, add, ceil, div, eq, exponentiation, floor, gt, gte, is_integer, is_negative, is_positive, is_zero, lt, lte, make, make_big_float, modulo, mul, neg, PRECISION, set_precision, sqrt, string, sub} from "./lib.ts";
 import type {IBigFloat, NumericValue} from "./types.ts";
 
 export class BigFloat implements IBigFloat {

@@ -1,8 +1,4 @@
-import {add, div, exponentiation, modulo, mul, sub} from "./arithmetic.ts";
-import {PRECISION, ZERO} from "./constants.ts";
-import {make, normalize, string} from "./constructors.ts";
-import {is_number, is_zero} from "./predicates.ts";
-import {eq, gt, lt} from "./relational.ts";
+import {add, div, eq, exponentiation, gt, is_number, lt, make, modulo, mul, normalize, PRECISION, string, sub} from "./lib.ts";
 import type {IBigFloat} from "./types.ts";
 
 type TokenArray = ({
@@ -118,7 +114,7 @@ export function evaluate(source: string,
           "+"() { return add(a, b); },
           "-"() { return sub(a, b); },
           "*"() { return mul(a, b); },
-          "/"() { return is_zero(b) ? ZERO : div(a, b, precision); },
+          "/"() { return div(a, b, precision); },
           "**"() { return exponentiation(a, b); },
           "%"() { return modulo(a, b); },
         } as { [key: string]: () => IBigFloat })[operator];
