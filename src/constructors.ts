@@ -12,7 +12,7 @@ export function make_big_float(coefficient: bigint,
   return Object.freeze(new_big_float);
 }
 
-export function number(a: NumericValue) {
+export function number(a: NumericValue): number {
   if (typeof a !== "number" && typeof a !== "string") {
     if (typeof a === "bigint") {
       return Number(a);
@@ -24,7 +24,7 @@ export function number(a: NumericValue) {
   return Number(a);
 }
 
-export function normalize(a: IBigFloat) {
+export function normalize(a: IBigFloat): IBigFloat {
   let { coefficient, exponent } = a;
 
   // If the exponent is zero, it is already normal.
@@ -56,7 +56,7 @@ export function normalize(a: IBigFloat) {
   return make_big_float(coefficient, exponent);
 }
 
-export function integer(a: IBigFloat) {
+export function integer(a: IBigFloat): IBigFloat {
   // The integer function is like the normalize function except that it throws
   // away significance. It discards the digits after the decimal point.
 
@@ -79,7 +79,7 @@ export function integer(a: IBigFloat) {
   return make_big_float(coefficient / BIGINT_TEN ** BigInt(-exponent), 0);
 }
 
-export function fraction(a: IBigFloat) { return sub(a, integer(a)); }
+export function fraction(a: IBigFloat): IBigFloat { return sub(a, integer(a)); }
 
 export function make(a: NumericValue, b?: number|string): IBigFloat {
   const number_pattern = /^(-?\d+)(?:\.(\d*))?(?:e(-?\d+))?$/;
@@ -131,7 +131,7 @@ export function string(a: IBigFloat, radix?: IBigFloat): string {
   return s;
 }
 
-export function scientific(a: IBigFloat) {
+export function scientific(a: IBigFloat): string {
   if (is_zero(a)) { return "0"; }
   a       = normalize(a);
   let   s = String(is_negative(a) ? -a.coefficient : a.coefficient);

@@ -4,13 +4,16 @@ import {is_integer, is_negative, is_zero} from "./predicates.ts";
 import {eq, gt, lt} from "./relational.ts";
 import type {IBigFloat} from "./types.ts";
 
-export function neg(a: IBigFloat) {
+export function neg(a: IBigFloat): IBigFloat {
   return make_big_float(-a.coefficient, a.exponent);
 }
 
-export function abs(a: IBigFloat) { return is_negative(a) ? neg(a) : a; }
+export function abs(a: IBigFloat): IBigFloat {
+  return is_negative(a) ? neg(a) : a;
+}
 
-function conform_op(op: (a: bigint, b: bigint) => bigint) {
+function conform_op(op: (a: bigint, b: bigint) => bigint):
+  (a: IBigFloat, b: IBigFloat) => IBigFloat {
   return function(a: IBigFloat, b: IBigFloat) {
     const differential = a.exponent - b.exponent;
     return differential === 0
@@ -26,10 +29,12 @@ function conform_op(op: (a: bigint, b: bigint) => bigint) {
   };
 }
 
-export const add = conform_op((a: bigint, b: bigint) => a + b);
-export const sub = conform_op((a: bigint, b: bigint) => a - b);
+export const add: (a: IBigFloat, b: IBigFloat) => IBigFloat
+  = conform_op((a: bigint, b: bigint) => a + b);
+export const sub: (a: IBigFloat, b: IBigFloat) => IBigFloat
+  = conform_op((a: bigint, b: bigint) => a - b);
 
-export function mul(multiplicand: IBigFloat, multiplier: IBigFloat) {
+export function mul(multiplicand: IBigFloat, multiplier: IBigFloat): IBigFloat {
   return make_big_float(multiplicand.coefficient * multiplier.coefficient,
                         multiplicand.exponent + multiplier.exponent);
 }
@@ -52,7 +57,7 @@ export function div(dividend: IBigFloat, divisor: IBigFloat,
   return make_big_float(coefficient, exponent);
 }
 
-export function sqrt(n: IBigFloat) {
+export function sqrt(n: IBigFloat): IBigFloat {
   let x = n;
   let y = ONE;
   while (gt(sub(x, y), EPSILON)) {
@@ -102,7 +107,7 @@ export function exponentiation(base: IBigFloat, exp: IBigFloat): IBigFloat {
   return acc;
 }
 
-export function ceil(n: IBigFloat) {
+export function ceil(n: IBigFloat): IBigFloat {
   if (is_integer(n)) {
     return n;
   } else {
@@ -110,7 +115,7 @@ export function ceil(n: IBigFloat) {
   }
 }
 
-export function floor(n: IBigFloat) { return integer(n); }
+export function floor(n: IBigFloat): IBigFloat { return integer(n); }
 
 export function modulo(a: IBigFloat, b: IBigFloat): IBigFloat {
   return make_big_float(integer(a).coefficient % integer(b).coefficient, 0);

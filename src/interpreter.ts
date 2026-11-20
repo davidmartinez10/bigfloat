@@ -84,7 +84,7 @@ export function evaluate(source: string,
   });
 
   // Recursively resolve the parentheses
-  function resolve(arr: TokenArray): any {
+  function resolve(arr: TokenArray): TokenArray {
     // Remove parens when there's only one value
     if (arr.length <= 3) { return [arr[1]]; }
     let last_left_paren = 0;
@@ -144,6 +144,6 @@ export function evaluate(source: string,
 
   const [result] = resolve(tokens);
 
-  if (result.type === "number") { return string(result.value)!; }
-  return result.value;
+  if (result.type === "number") { return string(result.value as IBigFloat); }
+  return result.value as string | boolean;
 }

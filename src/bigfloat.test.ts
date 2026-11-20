@@ -1,5 +1,5 @@
 /// <reference lib="deno.ns" />
-import {assertEquals} from "jsr:@std/assert";
+import {assertEquals} from "@std/assert";
 
 import {BigFloat} from "./bigfloat.ts";
 
