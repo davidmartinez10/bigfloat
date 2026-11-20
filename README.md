@@ -79,6 +79,6 @@ const bigfloat: IBigFloat = {
 };
 ```
 ### Alternative versions
->[bigfloat.js](https://github.com/davidmartinez/bigfloat.js) - NPM · for old runtimes · CommonJS
+>[bigfloat.js](https://www.npmjs.com/package/bigfloat.js) - NPM · for old runtimes · CommonJS
 
->[bigfloat-esnext](https://github.com/davidmartinez/bigfloat.ts) - NPM · for modern runtimes · ES modules
+>[bigfloat-esnext](https://www.npmjs.com/package/bigfloat-esnext) - NPM · for modern runtimes · ES modules
