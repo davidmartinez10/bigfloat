@@ -1,5 +1,5 @@
 import {add, div, eq, exponentiation, gt, is_number, lt, make, modulo, mul, normalize, PRECISION, string, sub} from "./lib.ts";
-import type {IBigFloat} from "./types.ts";
+import type {IBigFloat} from "./lib.ts";
 
 type TokenArray = ({
   type: string;

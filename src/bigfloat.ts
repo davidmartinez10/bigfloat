@@ -1,6 +1,6 @@
 import {evaluate} from "./interpreter.ts";
 import {abs, add, ceil, div, eq, exponentiation, floor, gt, gte, is_integer, is_negative, is_positive, is_zero, lt, lte, make, make_big_float, modulo, mul, neg, PRECISION, set_precision, sqrt, string, sub} from "./lib.ts";
-import type {IBigFloat, NumericValue} from "./types.ts";
+import type {IBigFloat, NumericValue} from "./lib.ts";
 
 export class BigFloat implements IBigFloat {
   readonly exponent: number;

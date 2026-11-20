@@ -3,7 +3,7 @@ export interface IBigFloat {
   exponent: number;
 }
 
-type NumericValue = string|number|IBigFloat|bigint;
+export type NumericValue = string|number|IBigFloat|bigint;
 
 const BIGINT_ZERO: bigint        = BigInt("0");
 const BIGINT_ONE: bigint         = BigInt("1");
