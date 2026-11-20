@@ -1,9 +1,7 @@
-[![BigFloat](https://raw.githubusercontent.com/davidmartinez10/bigfloat-esnext/master/bigfloat.jpg)](https://github.com/davidmartinez10/bigfloat-deno)
-
 A library for arbitrary precision decimal floating point arithmetic that can exactly represent all decimal fractions,
 unlike JavaScript's number data type which is 64-bit binary floating point.
 
-Based on the original work by Douglas Crockford.
+Based on the original work by Douglas Crockford: [howjavascriptworks](https://github.com/douglascrockford/howjavascriptworks).
 This implementation is built upon ES native bigints.
 
 This library provides three ways to make bigfloat operations:
