@@ -82,12 +82,13 @@ export function integer(a: IBigFloat): IBigFloat {
 export function fraction(a: IBigFloat): IBigFloat { return sub(a, integer(a)); }
 
 export function make(a: NumericValue, b?: number|string): IBigFloat {
-  const number_pattern = /^(-?\d+)(?:\.(\d*))?(?:e(-?\d+))?$/;
+  const number_pattern = /^(-?\d+)(?:\.(\d*))?(?:(e|E)(-?\d+))?$/;
 
   // . Capturing groups
   // .      [1] int
   // .      [2] frac
-  // .      [3] exp
+  // .      [3] e
+  // .      [4] exp
   if (typeof a === "bigint") {
     return make_big_float(a, Number(b) || 0);
   } else if (typeof a === "string" || typeof a === "number") {
@@ -99,7 +100,7 @@ export function make(a: NumericValue, b?: number|string): IBigFloat {
     if (parts) {
       const frac = parts[2] || "";
       return make(BigInt(parts[1] + frac),
-                  (Number(parts[3]) || 0) - frac.length);
+                  (Number(parts[4]) || 0) - frac.length);
     }
   } else if (is_big_float(a)) {
     return a;

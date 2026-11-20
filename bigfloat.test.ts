@@ -4,6 +4,10 @@ import {assertEquals} from "@std/assert";
 import {BigFloat} from "./src/bigfloat.ts";
 
 Deno.test("evaluate", function() {
+  assertEquals(BigFloat.evaluate("2.220446049250313e-16"),
+               "0.0000000000000002220446049250313");
+  assertEquals(BigFloat.evaluate("2.220446049250313E-16"),
+               "0.0000000000000002220446049250313");
   assertEquals(BigFloat.evaluate("4.333 ** 3 * 3.14 - 70", 18),
                "185.44400527618");
 });

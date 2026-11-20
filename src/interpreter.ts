@@ -43,7 +43,7 @@ export function evaluate(source: string,
 
   const expression = parenthesize(source);
   const rx_tokens
-    = /(-?\d+(?:\.\d+)?(?:e(-?|\+?)\d+)?)|(\(|\))|(\+|-|\/|\*\*|==|!=|<=?|>=?|\*|\^|%)/g;
+    = /(-?\d+(?:\.\d+)?(?:(e|E)(-?|\+?)\d+)?)|(\(|\))|(\+|-|\/|\*\*|==|!=|<=?|>=?|\*|\^|%)/g;
   // Capture groups
   // [1] Number
   // [2] Paren
