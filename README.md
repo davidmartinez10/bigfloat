@@ -12,14 +12,14 @@ This library provides three ways to make bigfloat operations:
 # Basic usage
 ### Functional style
 ```typescript
-import { make, string, sqrt } from "https://deno.land/x/bigfloat/mod.ts";
+import { make, string, sqrt } from "@davidmartinez/bigfloat";
 
 string(sqrt(make("2")));               // "1.4142"
 ```
 
 ### Class based
 ```typescript
-import { BigFloat } from "https://deno.land/x/bigfloat/mod.ts";
+import { BigFloat } from "@davidmartinez/bigfloat";
 
 new BigFloat("2").sqrt().toString();   // "1.4142"
 ```
@@ -31,7 +31,7 @@ evaluate(expression: string, precision?: number): string | boolean
 >The first argument can be any valid arithmetic or relational expression, including scientific e-notation.
 >Precision should be a negative integer. Default is -5.
 ```typescript
-import { evaluate } from "https://deno.land/x/bigfloat/mod.ts";
+import { evaluate } from "@davidmartinez/bigfloat";
 
 0.1 + 0.2 === 0.3;                     // false
 evaluate("0.1 + 0.2 == 0.3");          // true
@@ -54,7 +54,7 @@ Valid tokens:
 
 ### Change precision
 ```typescript
-import { BigFloat, set_precision } from "https://deno.land/x/bigfloat/mod.ts";
+import { BigFloat, set_precision } from "@davidmartinez/bigfloat";
 
 new BigFloat(2).sqrt().toString();     // "1.41421"
 BigFloat.setPrecision(-10);

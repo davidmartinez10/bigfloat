@@ -1,7 +1,7 @@
 {
-    "name": "bigfloat",
+    "name": "@davidmartinez/bigfloat",
     "exports": "./src/mod.ts",
-    "version": "3.0.2",
+    "version": "3.1.0",
     "license": "MIT",
     "tasks": {
         "test": "deno test --allow-none",
