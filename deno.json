@@ -5,7 +5,7 @@
     "license": "MIT",
     "tasks": {
         "test": "deno test --allow-none",
-        "check": "deno check mod.ts",
+        "check": "deno check src/mod.ts",
         "lint": "deno lint"
     }
 }
