@@ -41,7 +41,8 @@ export function mul(multiplicand: IBigFloat, multiplier: IBigFloat): IBigFloat {
 
 export function div(dividend: IBigFloat, divisor: IBigFloat,
                     precision = PRECISION): IBigFloat {
-  if (is_zero(dividend) || is_zero(divisor)) { return ZERO; }
+  if (is_zero(divisor)) { throw RangeError("Division by zero"); }
+  if (is_zero(dividend)) { return ZERO; }
 
   let { coefficient, exponent } = dividend;
   exponent -= divisor.exponent;

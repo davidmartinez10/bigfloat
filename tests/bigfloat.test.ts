@@ -1,7 +1,7 @@
 /// <reference lib="deno.ns" />
 import {assertEquals} from "@std/assert";
 
-import {BigFloat} from "./src/bigfloat.ts";
+import {BigFloat} from "../src/bigfloat.ts";
 
 Deno.test("evaluate", function() {
   assertEquals(BigFloat.evaluate("2.220446049250313e-16"),
