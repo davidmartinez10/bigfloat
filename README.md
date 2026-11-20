@@ -57,7 +57,7 @@ Valid tokens:
 import { BigFloat, set_precision } from "https://deno.land/x/bigfloat/mod.ts";
 
 new BigFloat(2).sqrt().toString();     // "1.41421"
-set_precision(-10);
+BigFloat.setPrecision(-10);
 new BigFloat(2).sqrt().toString();     // "1.4142135623"
 ```
 
