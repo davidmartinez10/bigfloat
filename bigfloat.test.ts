@@ -1,7 +1,7 @@
 /// <reference lib="deno.ns" />
 import {assertEquals} from "@std/assert";
 
-import {BigFloat} from "./bigfloat.ts";
+import {BigFloat} from "./src/bigfloat.ts";
 
 Deno.test("evaluate", function() {
   assertEquals(BigFloat.evaluate("4.333 ** 3 * 3.14 - 70", 18),
@@ -20,9 +20,10 @@ Deno.test(
   "isNegative",
   function() { assertEquals(new BigFloat("-4.333").isNegative(), true); });
 
-Deno
-  .test("isPositive",
-        function() { assertEquals(new BigFloat("4.333").isPositive(), true); });
+Deno.test("isPositive", function() {
+  assertEquals(new BigFloat("0").isPositive(), false);
+  assertEquals(new BigFloat("4.333").isPositive(), true);
+});
 
 Deno.test("isZero",
           function() { assertEquals(new BigFloat("0").isZero(), true); });

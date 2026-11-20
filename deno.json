@@ -14,5 +14,8 @@
         "test": "deno test --allow-none",
         "check": "deno check src/mod.ts",
         "lint": "deno lint"
+    },
+    "imports": {
+        "@std/assert": "jsr:@std/assert@^1.0.19"
     }
 }
