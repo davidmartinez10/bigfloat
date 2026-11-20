@@ -62,7 +62,7 @@ Deno.test("neg", function() {
 
 Deno.test(
   "sqrt",
-  function() { assertEquals(new BigFloat(2).sqrt().toString(), "1.4142"); });
+  function() { assertEquals(new BigFloat(2).sqrt().toString(), "1.41421"); });
 
 Deno.test("div", function() {
   assertEquals(new BigFloat("43.33").div(4).toString(), "10.8325");

@@ -1,6 +1,7 @@
 {
     "name": "bigfloat",
-    "exports": "./mod.ts",
+    "exports": "./src/mod.ts",
+    "version": "3.0.2",
     "license": "MIT",
     "tasks": {
         "test": "deno test --allow-none",
