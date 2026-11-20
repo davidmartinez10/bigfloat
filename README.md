@@ -9,6 +9,8 @@ This library provides three ways to make bigfloat operations:
   - A BigFloat class with an API similar to that of Decimal.js
   - An evaluate() function that parses and resolves an expression
 
+>#### [GitHub repo 🔗](https://github.com/davidmartinez10/bigfloat)
+
 # Basic usage
 ### Functional style
 ```typescript
@@ -76,3 +78,7 @@ const bigfloat: IBigFloat = {
   exponent: -4
 };
 ```
+### Alternative versions
+>[bigfloat.js](https://github.com/davidmartinez/bigfloat.js) - NPM · for old runtimes · CommonJS
+
+>[bigfloat-esnext](https://github.com/davidmartinez/bigfloat.ts) - NPM · for modern runtimes · ES modules
